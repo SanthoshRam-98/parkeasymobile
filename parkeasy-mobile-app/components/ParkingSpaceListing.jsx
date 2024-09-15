@@ -4,23 +4,14 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  Dimensions,
   SafeAreaView,
   StatusBar,
-  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen1 from "../screenImages/screen1-image.svg";
+import ParkingScreen from "../screenImages/parkingspace.svg"; // Assuming SVG file is imported correctly
 
-const { width, height } = Dimensions.get("window");
-
-const SkipButton = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity style={[styles.skipButton, { top: insets.top + 20 }]}>
-      <Text style={styles.skipText}>Skip</Text>
-    </TouchableOpacity>
-  );
-};
+const { height } = Dimensions.get("window");
 
 const NextButton = ({ onPress }) => {
   const insets = useSafeAreaInsets();
@@ -39,27 +30,42 @@ const NextButton = ({ onPress }) => {
   );
 };
 
-const ProgressDots = () => (
-  <View style={styles.dotsContainer}>
-    <View style={styles.activeDot} />
-    <View style={styles.inactiveDot} />
-    <View style={styles.inactiveDot} />
-  </View>
-);
+const SkipButton = ({ onPress }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <TouchableOpacity
+      style={[styles.skipButton, { top: insets.top + 20, right: 20 }]}
+      onPress={onPress}
+    >
+      <Text style={styles.skipText}>Skip</Text>
+    </TouchableOpacity>
+  );
+};
 
-const OnBoardScreen1 = ({ navigation }) => {
+const ParkingSpaceListing = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <SkipButton />
-      <Screen1 width="100%" height={height * 0.4} />
-      <Text style={styles.title}>Feel safe and secure parking</Text>
+
+      {/* Skip Button */}
+      <SkipButton onPress={() => navigation.navigate("HomeScreen")} />
+
+      {/* Screen Content */}
+      <ParkingScreen width="100%" height={height * 0.4} />
+      <Text style={styles.title}>List your parking space</Text>
       <Text style={styles.description}>
-        Providing reliable, safe, and secure parking solutions for peace of
-        mind.
+        You can list any parking space you own or have permission to offer.
       </Text>
-      <ProgressDots />
-      <NextButton onPress={() => navigation.navigate("Onboarding2")} />
+
+      {/* Dots Indicator */}
+      <View style={styles.indicatorContainer}>
+        <View style={styles.indicator} />
+      </View>
+
+      {/* Next Button */}
+      <NextButton onPress={() => navigation.navigate("HomeScreen")} />
     </SafeAreaView>
   );
 };
@@ -70,56 +76,34 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(19, 18, 18, 1)",
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
+    padding: 20,
   },
   title: {
     color: "rgba(255, 214, 19, 1)",
     textAlign: "center",
-    marginTop: 44,
-    width: "90%",
+    marginTop: 32,
     fontSize: 20,
     fontWeight: "500",
+    width: "100%",
   },
   description: {
     color: "rgba(255, 255, 255, 1)",
     textAlign: "center",
     marginTop: 12,
-    width: "90%",
     fontSize: 16,
     fontWeight: "300",
+    width: "100%",
   },
-  dotsContainer: {
+  indicatorContainer: {
     marginTop: 24,
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
   },
-  activeDot: {
+  indicator: {
     borderRadius: 10,
     backgroundColor: "rgba(255, 214, 19, 1)",
+    height: 6,
     width: 16,
-    height: 6,
-  },
-  inactiveDot: {
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    width: 6,
-    height: 6,
-  },
-  skipButton: {
-    position: "absolute",
-    right: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 1)",
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    backgroundColor: "transparent",
-  },
-  skipText: {
-    color: "rgba(255, 255, 255, 1)",
-    fontSize: 16,
-    fontWeight: "300",
   },
   nextButton: {
     position: "absolute",
@@ -135,6 +119,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  skipButton: {
+    position: "absolute",
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    backgroundColor: "transparent",
+  },
+  skipText: {
+    color: "rgba(255, 255, 255, 1)",
+    fontSize: 16,
+    fontWeight: "300",
+  },
 });
 
-export default OnBoardScreen1;
+export default ParkingSpaceListing;

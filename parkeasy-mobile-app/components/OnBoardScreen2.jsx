@@ -9,18 +9,9 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen1 from "../screenImages/screen1-image.svg";
+import Screen2 from "../screenImages/screen2-image.svg";
 
-const { width, height } = Dimensions.get("window");
-
-const SkipButton = () => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity style={[styles.skipButton, { top: insets.top + 20 }]}>
-      <Text style={styles.skipText}>Skip</Text>
-    </TouchableOpacity>
-  );
-};
+const { height } = Dimensions.get("window");
 
 const NextButton = ({ onPress }) => {
   const insets = useSafeAreaInsets();
@@ -39,27 +30,51 @@ const NextButton = ({ onPress }) => {
   );
 };
 
-const ProgressDots = () => (
-  <View style={styles.dotsContainer}>
-    <View style={styles.activeDot} />
-    <View style={styles.inactiveDot} />
-    <View style={styles.inactiveDot} />
-  </View>
-);
+const SkipButton = ({ onPress }) => {
+  const insets = useSafeAreaInsets();
+  return (
+    <TouchableOpacity
+      style={[styles.skipButton, { top: insets.top + 20, right: 20 }]}
+      onPress={onPress}
+    >
+      <Text style={styles.skipText}>Skip</Text>
+    </TouchableOpacity>
+  );
+};
 
-const OnBoardScreen1 = ({ navigation }) => {
+const OnBoardScreen2 = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <SkipButton />
-      <Screen1 width="100%" height={height * 0.4} />
-      <Text style={styles.title}>Feel safe and secure parking</Text>
+
+      {/* Back Button */}
+      <TouchableOpacity
+        style={[styles.backButton, { top: insets.top + 20, left: 20 }]}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.backText}>Back</Text>
+      </TouchableOpacity>
+
+      {/* Skip Button */}
+      <SkipButton onPress={() => navigation.navigate("ParkingSpace")} />
+
+      {/* Screen Content */}
+      <Screen2 width="100%" height={height * 0.4} />
+      <Text style={styles.title}>Find a parking spot easily</Text>
       <Text style={styles.description}>
-        Providing reliable, safe, and secure parking solutions for peace of
-        mind.
+        Easily find your parking spaces nearby or at any point on the map.
       </Text>
-      <ProgressDots />
-      <NextButton onPress={() => navigation.navigate("Onboarding2")} />
+
+      {/* Dots Indicator */}
+      <View style={styles.dotsContainer}>
+        <View style={styles.inactiveDot} />
+        <View style={styles.activeDot} />
+      </View>
+
+      {/* Next Button */}
+      <NextButton onPress={() => navigation.navigate("ParkingSpace")} />
     </SafeAreaView>
   );
 };
@@ -106,9 +121,8 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
   },
-  skipButton: {
+  backButton: {
     position: "absolute",
-    right: 20,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 1)",
@@ -116,7 +130,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     backgroundColor: "transparent",
   },
-  skipText: {
+  backText: {
     color: "rgba(255, 255, 255, 1)",
     fontSize: 16,
     fontWeight: "300",
@@ -135,6 +149,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  skipButton: {
+    position: "absolute",
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    backgroundColor: "transparent",
+  },
+  skipText: {
+    color: "rgba(255, 255, 255, 1)",
+    fontSize: 16,
+    fontWeight: "300",
+  },
 });
 
-export default OnBoardScreen1;
+export default OnBoardScreen2;
