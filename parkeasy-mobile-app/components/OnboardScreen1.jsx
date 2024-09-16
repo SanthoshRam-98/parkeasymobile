@@ -9,14 +9,17 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen1 from "../screenImages/screen1-image.svg";
+import Screen1 from "../screenImages/screen1-image.svg"; // Correct SVG import
 
-const { width, height } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
-const SkipButton = () => {
+const SkipButton = ({ onPress }) => {
   const insets = useSafeAreaInsets();
   return (
-    <TouchableOpacity style={[styles.skipButton, { top: insets.top + 20 }]}>
+    <TouchableOpacity
+      style={[styles.skipButton, { top: insets.top + 20 }]}
+      onPress={onPress}
+    >
       <Text style={styles.skipText}>Skip</Text>
     </TouchableOpacity>
   );
@@ -26,12 +29,7 @@ const NextButton = ({ onPress }) => {
   const insets = useSafeAreaInsets();
   return (
     <TouchableOpacity
-      style={[
-        styles.nextButton,
-        {
-          bottom: insets.bottom + 20,
-        },
-      ]}
+      style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
       onPress={onPress}
     >
       <Text style={styles.nextText}>Next</Text>
@@ -51,8 +49,11 @@ const OnBoardScreen1 = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <SkipButton />
-      <Screen1 width="100%" height={height * 0.4} />
+      <SkipButton onPress={() => navigation.navigate("Onboarding2")} />
+      <Screen1
+        width="100%"
+        height={height * 0.4}
+      />
       <Text style={styles.title}>Feel safe and secure parking</Text>
       <Text style={styles.description}>
         Providing reliable, safe, and secure parking solutions for peace of
@@ -70,13 +71,20 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(19, 18, 18, 1)",
     alignItems: "center",
     justifyContent: "center",
-    width: "100%",
+    paddingHorizontal: 0, // Ensure there's no horizontal padding
+    width: "100%", // Ensure the container takes up the full width
+  },
+  mainImage: {
+    width: "100%", // Ensure it takes full width of the container
+    height: height * 0.4, // Adjust height as needed
+    marginTop: 20,
+    resizeMode: "contain", // Ensure the image scales properly
   },
   title: {
     color: "rgba(255, 214, 19, 1)",
     textAlign: "center",
     marginTop: 44,
-    width: "90%",
+    width: "90%", // Adjust width to avoid gaps
     fontSize: 20,
     fontWeight: "500",
   },
@@ -84,7 +92,7 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 1)",
     textAlign: "center",
     marginTop: 12,
-    width: "90%",
+    width: "90%", // Adjust width to avoid gaps
     fontSize: 16,
     fontWeight: "300",
   },
@@ -124,7 +132,7 @@ const styles = StyleSheet.create({
   nextButton: {
     position: "absolute",
     left: 20,
-    right: 20,
+    right: 20, // Ensure button spans the full width with 20 margin from both sides
     borderRadius: 10,
     backgroundColor: "rgba(255, 214, 19, 1)",
     paddingVertical: 16,

@@ -2,10 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, View, Animated, Easing } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import {
-  createStackNavigator,
-  TransitionPresets,
-} from "@react-navigation/stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import HelloWorld from "./components/HelloWorld";
 import OnBoardScreen1 from "./components/OnboardScreen1";
@@ -39,10 +36,10 @@ export default function App() {
         <View style={styles.container}>
           <StatusBar style="auto" />
           <Animated.View
-            style={[
-              styles.animatedView,
-              { transform: [{ translateX: slideAnim }] },
-            ]}
+            style={{
+              ...styles.animatedView,
+              transform: [{ translateX: slideAnim }],
+            }}
           >
             <HelloWorld />
           </Animated.View>
@@ -56,13 +53,44 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
-            headerShown: false,
-            ...TransitionPresets.SlideFromRightIOS, // Smooth slide transition
+            gestureEnabled: true,
+            headerShown: false, // Hide headers if not needed
+            transitionSpec: {
+              open: {
+                animation: "timing",
+                config: {
+                  duration: 300,
+                },
+              },
+              close: {
+                animation: "timing",
+                config: {
+                  duration: 300,
+                },
+              },
+            },
+            cardStyleInterpolator: ({ current, next, layouts }) => {
+              return {
+                cardStyle: {
+                  transform: [
+                    {
+                      translateX: current.progress.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [layouts.screen.width, 0],
+                      }),
+                    },
+                  ],
+                },
+              };
+            },
           }}
         >
           <Stack.Screen name="Onboarding1" component={OnBoardScreen1} />
           <Stack.Screen name="Onboarding2" component={OnBoardScreen2} />
-          <Stack.Screen name="ParkingSpace" component={ParkingSpaceListing} />
+          <Stack.Screen
+            name="ParkingSpaceListing"
+            component={ParkingSpaceListing}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
@@ -72,7 +100,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#000", // Set to black or any desired color
     alignItems: "center",
     justifyContent: "center",
   },
