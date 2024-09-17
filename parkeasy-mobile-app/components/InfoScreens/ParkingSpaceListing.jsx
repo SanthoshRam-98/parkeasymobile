@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import ParkingScreen from "../screenImages/parkingspace.svg";
+import ParkingScreen from "/Users/santh/OneDrive/Desktop/parkeasymobile/parkeasy-mobile-app/screenImages/parkingspace.svg";
 
 const { height } = Dimensions.get("window");
 
@@ -30,8 +30,10 @@ const ParkingSpaceListing = ({ navigation }) => {
       <Text style={styles.description}>
         You can list any parking space you own or have permission to offer.
       </Text>
-      <View style={styles.indicatorContainer}>
-        <View style={styles.indicator} />
+      <View style={styles.dotsContainer}>
+        <View style={styles.inactiveDot} />
+        <View style={styles.inactiveDot} />
+        <View style={styles.activeDot} />
       </View>
       <TouchableOpacity
         style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
@@ -123,6 +125,25 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 1)",
     fontSize: 16,
     fontWeight: "300",
+  },
+  dotsContainer: {
+    marginTop: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  activeDot: {
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 214, 19, 1)",
+    width: 16,
+    height: 6,
+  },
+  inactiveDot: {
+    borderRadius: 10,
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    width: 6,
+    height: 6,
   },
 });
 
