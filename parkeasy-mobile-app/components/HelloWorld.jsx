@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 
-// Get device width and height
 const { width: deviceWidth, height: deviceHeight } = Dimensions.get("window");
 
-const HelloWorld = () => {
+const HelloWorld = ({ navigation }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigation.navigate("OnBoardScreen1");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [navigation]);
+
   return (
     <View style={styles.container}>
       <View style={styles.logoCircle} />
@@ -19,30 +26,29 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffd613",
     flex: 1,
     alignItems: "center",
-    justifyContent: "center", // Centers content vertically
+    justifyContent: "center",
     width: "100%",
     paddingBottom: 9,
   },
   logoCircle: {
     backgroundColor: "#000",
-    borderRadius: deviceWidth * 0.4, // Circular
-    width: deviceWidth * 0.2, // Relative to device size
-    height: deviceWidth * 0.2, // Relative to device size
-    marginTop: deviceHeight * 0.3, // Relative margin for spacing
+    borderRadius: deviceWidth * 0.4,
+    width: deviceWidth * 0.2,
+    height: deviceWidth * 0.2,
   },
   logoText: {
     color: "#000",
-    letterSpacing: deviceWidth * 0.014, // Scale letter-spacing
+    letterSpacing: deviceWidth * 0.014,
     marginTop: 24,
-    fontSize: deviceWidth * 0.09, // Scales text size to device width
+    fontSize: deviceWidth * 0.09,
     fontWeight: "600",
   },
   underlineBar: {
-    marginTop: deviceHeight * 0.03, // Relative margin
-    width: deviceWidth * 0.45, // Scale with width
+    marginTop: deviceHeight * 0.03,
+    width: deviceWidth * 0.45,
     height: 4,
-    borderWidth: 4,
     borderColor: "#000",
+    borderWidth: 4,
   },
 });
 

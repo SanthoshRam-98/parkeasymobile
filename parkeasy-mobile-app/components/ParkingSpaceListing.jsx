@@ -3,10 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ParkingScreen from "../screenImages/parkingspace.svg";
@@ -35,7 +35,10 @@ const ParkingSpaceListing = ({ navigation }) => {
       </View>
       <TouchableOpacity
         style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
-        onPress={() => navigation.navigate("ParkingSpaceListing")}
+        onPress={() => {
+          // Define the next action here
+          navigation.navigate("NextScreenName");
+        }}
       >
         <Text style={styles.nextText}>Next</Text>
       </TouchableOpacity>
@@ -96,7 +99,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 1)",
     borderColor: "rgba(255, 255, 255, 1)",
     paddingVertical: 8,
     paddingHorizontal: 18,

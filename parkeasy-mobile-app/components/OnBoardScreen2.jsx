@@ -9,49 +9,46 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen2 from "../screenImages/screen2-image.svg"; // Example image import
+import Screen2 from "../screenImages/screen2-image.svg";
 
-const { height, width } = Dimensions.get("window");
-
-const BackButton = ({ onPress }) => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity
-      style={[styles.backButton, { top: insets.top + 20, left: 20 }]}
-      onPress={onPress}
-    >
-      <Text style={styles.backText}>Back</Text>
-    </TouchableOpacity>
-  );
-};
-
-const NextButton = ({ onPress }) => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity
-      style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
-      onPress={onPress}
-    >
-      <Text style={styles.nextText}>Next</Text>
-    </TouchableOpacity>
-  );
-};
+const { height } = Dimensions.get("window");
 
 const OnBoardScreen2 = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <BackButton onPress={() => navigation.goBack()} />
+      <TouchableOpacity
+        style={[styles.backButton, { top: insets.top + 20, left: 20 }]}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.backText}>Back</Text>
+      </TouchableOpacity>
+
       <Screen2 width="100%" height={height * 0.4} />
+
+      {/* Wrap the title text in a <Text> component */}
       <Text style={styles.title}>Find a parking spot easily</Text>
+
+      {/* Wrap the description text in a <Text> component */}
       <Text style={styles.description}>
         Easily find your parking spaces nearby or at any point on the map.
       </Text>
+
+      {/* Render the dots within a <View>, no text here */}
       <View style={styles.dotsContainer}>
         <View style={styles.inactiveDot} />
         <View style={styles.activeDot} />
+        <View style={styles.inactiveDot} />
       </View>
-      <NextButton onPress={() => navigation.navigate("ParkingSpaceListing")} />
+
+      <TouchableOpacity
+        style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
+        onPress={() => navigation.navigate("ParkingSpaceListing")}
+      >
+        <Text style={styles.nextText}>Next</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -99,21 +96,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     width: 6,
     height: 6,
-  },
-  skipButton: {
-    position: "absolute",
-    right: 20,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 1)",
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    backgroundColor: "transparent",
-  },
-  skipText: {
-    color: "rgba(255, 255, 255, 1)",
-    fontSize: 16,
-    fontWeight: "300",
   },
   backButton: {
     position: "absolute",

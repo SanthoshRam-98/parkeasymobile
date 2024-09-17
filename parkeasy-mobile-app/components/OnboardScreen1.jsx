@@ -9,58 +9,43 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen1 from "../screenImages/screen1-image.svg"; // Correct SVG import
+import Screen1 from "../screenImages/screen1-image.svg";
+import { commonStyles } from "./commonStyles";
 
-const { height, width } = Dimensions.get("window");
-
-const SkipButton = ({ onPress }) => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity
-      style={[styles.skipButton, { top: insets.top + 20 }]}
-      onPress={onPress}
-    >
-      <Text style={styles.skipText}>Skip</Text>
-    </TouchableOpacity>
-  );
-};
-
-const NextButton = ({ onPress }) => {
-  const insets = useSafeAreaInsets();
-  return (
-    <TouchableOpacity
-      style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
-      onPress={onPress}
-    >
-      <Text style={styles.nextText}>Next</Text>
-    </TouchableOpacity>
-  );
-};
-
-const ProgressDots = () => (
-  <View style={styles.dotsContainer}>
-    <View style={styles.activeDot} />
-    <View style={styles.inactiveDot} />
-    <View style={styles.inactiveDot} />
-  </View>
-);
+const { height } = Dimensions.get("window");
 
 const OnBoardScreen1 = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <SkipButton onPress={() => navigation.navigate("Onboarding2")} />
-      <Screen1
-        width="100%"
-        height={height * 0.4}
-      />
+      <TouchableOpacity
+        style={[styles.skipButton, { top: insets.top + 20 }]}
+        onPress={() => navigation.navigate("OnBoardScreen2")}
+      >
+        <Text style={styles.skipText}>Skip</Text>
+      </TouchableOpacity>
+      <Screen1 width="100%" height={height * 0.4} />
       <Text style={styles.title}>Feel safe and secure parking</Text>
       <Text style={styles.description}>
-        Providing reliable, safe, and secure parking solutions for peace of
-        mind.
+        <Text>
+          {" "}
+          Providing reliable, safe, and secure parking solutions for peace of
+          mind.
+        </Text>
       </Text>
-      <ProgressDots />
-      <NextButton onPress={() => navigation.navigate("Onboarding2")} />
+      <View style={commonStyles.dotsContainer}>
+        <View style={commonStyles.activeDot} />
+        <View style={commonStyles.inactiveDot} />
+        <View style={commonStyles.inactiveDot} />
+      </View>
+      <TouchableOpacity
+        style={[commonStyles.nextButton, { bottom: insets.bottom + 20 }]}
+        onPress={() => navigation.navigate("OnBoardScreen2")}
+      >
+        <Text style={commonStyles.nextText}>Next</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -71,20 +56,14 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(19, 18, 18, 1)",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 0, // Ensure there's no horizontal padding
-    width: "100%", // Ensure the container takes up the full width
-  },
-  mainImage: {
-    width: "100%", // Ensure it takes full width of the container
-    height: height * 0.4, // Adjust height as needed
-    marginTop: 20,
-    resizeMode: "contain", // Ensure the image scales properly
+    paddingHorizontal: 0,
+    width: "100%",
   },
   title: {
     color: "rgba(255, 214, 19, 1)",
     textAlign: "center",
     marginTop: 44,
-    width: "90%", // Adjust width to avoid gaps
+    width: "90%",
     fontSize: 20,
     fontWeight: "500",
   },
@@ -92,27 +71,9 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 1)",
     textAlign: "center",
     marginTop: 12,
-    width: "90%", // Adjust width to avoid gaps
+    width: "90%",
     fontSize: 16,
     fontWeight: "300",
-  },
-  dotsContainer: {
-    marginTop: 24,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  activeDot: {
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 214, 19, 1)",
-    width: 16,
-    height: 6,
-  },
-  inactiveDot: {
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    width: 6,
-    height: 6,
   },
   skipButton: {
     position: "absolute",
@@ -128,20 +89,6 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 1)",
     fontSize: 16,
     fontWeight: "300",
-  },
-  nextButton: {
-    position: "absolute",
-    left: 20,
-    right: 20, // Ensure button spans the full width with 20 margin from both sides
-    borderRadius: 10,
-    backgroundColor: "rgba(255, 214, 19, 1)",
-    paddingVertical: 16,
-    alignItems: "center",
-  },
-  nextText: {
-    color: "rgba(0, 0, 0, 1)",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });
 
