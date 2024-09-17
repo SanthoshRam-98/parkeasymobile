@@ -7,6 +7,9 @@ import HelloWorld from "./HelloWorld";
 import OnBoardScreen1 from "./OnboardScreen1";
 import OnBoardScreen2 from "./OnBoardScreen2";
 import ParkingSpaceListing from "./ParkingSpaceListing";
+import LoginScreen from "./LoginScreen";
+import OTPVerification from "./OTPVerification";
+// import VehicleInputs from "./VehicleInputs";
 const Stack = createStackNavigator();
 
 const AllNavScreens = () => {
@@ -25,6 +28,9 @@ const AllNavScreens = () => {
         name="ParkingSpaceListing"
         component={ParkingSpaceListing}
       />
+      <Stack.Screen name="LoginScreen" component={LoginScreen} />
+      <Stack.Screen name="OTPVerification" component={OTPVerification} />
+      {/* <Stack.Screen name="VehicleInputs" component={VehicleInputs} /> */}
     </Stack.Navigator>
   );
 };

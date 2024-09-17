@@ -39,7 +39,7 @@ const ParkingSpaceListing = ({ navigation }) => {
         style={[styles.nextButton, { bottom: insets.bottom + 20 }]}
         onPress={() => {
           // Define the next action here
-          navigation.navigate("NextScreenName");
+          navigation.navigate("LoginScreen");
         }}
       >
         <Text style={styles.nextText}>Next</Text>
