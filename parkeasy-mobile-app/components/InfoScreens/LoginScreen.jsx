@@ -13,10 +13,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GoogleIcon from "/Users/santh/OneDrive/Desktop/parkeasymobile/parkeasy-mobile-app/screenImages/googleicon.svg";
 const { width, height } = Dimensions.get("window");
-const insets = useSafeAreaInsets();
 const LoginScreen = ({ navigation }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
-  
+  const insets = useSafeAreaInsets();
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>

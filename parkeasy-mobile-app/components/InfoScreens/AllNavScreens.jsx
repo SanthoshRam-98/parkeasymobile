@@ -9,10 +9,11 @@ import OnBoardScreen2 from "./OnBoardScreen2";
 import ParkingSpaceListing from "./ParkingSpaceListing";
 import LoginScreen from "./LoginScreen";
 import OTPVerification from "./OTPVerification";
-// import VehicleInputs from "./VehicleInputs";
-const Stack = createStackNavigator();
+import VehicleInputs from "./VehicleInputs";
+import UserHomeScreen from "./UserHomeScreen";
 
 const AllNavScreens = () => {
+  const Stack = createStackNavigator();
   return (
     <Stack.Navigator
       initialRouteName="HelloWorld"
@@ -30,7 +31,9 @@ const AllNavScreens = () => {
       />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="OTPVerification" component={OTPVerification} />
-      {/* <Stack.Screen name="VehicleInputs" component={VehicleInputs} /> */}
+      <Stack.Screen name="VehicleInputs" component={VehicleInputs} />
+      <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} />
+      {/* <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} /> */}
     </Stack.Navigator>
   );
 };

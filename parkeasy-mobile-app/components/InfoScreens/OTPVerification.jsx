@@ -71,7 +71,7 @@ const OTPVerification = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={[styles.continueButton, { bottom: insets.bottom + 20 }]}
-        onPress={() => navigation.navigate("OnBoardScreen2")}
+        onPress={() => navigation.navigate("VehicleInputs")}
       >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

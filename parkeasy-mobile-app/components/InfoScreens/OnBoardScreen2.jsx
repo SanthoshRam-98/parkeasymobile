@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Screen2 from "/Users/santh/OneDrive/Desktop/parkeasymobile/parkeasy-mobile-app/screenImages/screen2-image.svg";
+import Screen2 from "../../screenImages/screen2-image.svg";
 
 const { height } = Dimensions.get("window");
 
