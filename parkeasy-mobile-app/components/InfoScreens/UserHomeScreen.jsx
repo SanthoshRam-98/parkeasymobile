@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   parkingAvailabilityContainer: {
     width: "100%",
-    marginTop: 24,
+    // marginTop: 24,
   },
 });
 
