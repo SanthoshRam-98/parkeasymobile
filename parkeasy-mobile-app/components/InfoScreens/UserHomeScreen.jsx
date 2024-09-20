@@ -5,72 +5,84 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Dimensions,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; // Ensure this package is installed
-import ParkingAvailability from "./ParkingAvailability"; // Assuming this is the additional component
+import { Ionicons } from "@expo/vector-icons";
+import ParkingAvailability from "./ParkingAvailability";
+import ParkingServices from "./ParkingServices";
 
 const UserHomeScreen = () => {
+  const screenWidth = Dimensions.get("window").width;
+
   return (
     <ScrollView contentContainerStyle={styles.profileScreenContainer}>
-      <View style={styles.topSection}>
-        <View style={styles.profileHeaderContainer}>
-          <View style={styles.profileImage}>
-            <Ionicons name="person-circle-outline" size={56} color="black" />
-          </View>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>Kaarthikeyan S V</Text>
-            <View style={styles.locationContainer}>
-              <Ionicons name="location-outline" size={18} color="black" />
-              <Text style={styles.locationText}>Chennai</Text>
+      <View style={styles.profileNav}>
+        <View style={[styles.topSection, { width: screenWidth * 0.9 }]}>
+          <View style={styles.profileHeaderContainer}>
+            <View style={styles.profileImage}>
+              <Ionicons name="person-circle-outline" size={56} color="black" />
+            </View>
+            <View style={styles.profileInfo}>
+              <Text style={styles.profileName}>Kaarthikeyan S V</Text>
+              <View style={styles.locationContainer}>
+                <Ionicons name="location-outline" size={18} color="black" />
+                <Text style={styles.locationText}>Chennai</Text>
+              </View>
             </View>
           </View>
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="search-outline" size={24} color="black" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="notifications-outline" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={styles.actionButtonsContainer}>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="search-outline" size={24} color="black" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications-outline" size={24} color="black" />
-          </TouchableOpacity>
+        <View style={styles.bottomSection}>
+          <View style={[styles.buttonsContainer, { width: screenWidth * 0.9 }]}>
+            <TouchableOpacity style={styles.addVehicleContainer}>
+              <Ionicons name="add-circle-outline" size={24} color="black" />
+              <Text style={styles.addVehicleText}>Add Vehicle</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.earnButton}>
+              <Text style={styles.earnButtonText}>Earn with us!</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-
-      <View style={styles.bottomSection}>
-        <View style={styles.buttonsContainer}>
-          <TouchableOpacity style={styles.addVehicleContainer}>
-            <Ionicons name="add-circle-outline" size={24} color="black" />
-            <Text style={styles.addVehicleText}>Add Vehicle</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.earnButton}>
-            <Text style={styles.earnButtonText}>Earn with us!</Text>
-          </TouchableOpacity>
+      <View style={styles.userParkings}>
+        <View
+          style={[
+            styles.parkingAvailabilityContainer,
+            { width: screenWidth * 0.9 },
+          ]}
+        >
+          <ParkingAvailability />
         </View>
-      </View>
-
-      {/* Merge ParkingAvailability component below */}
-      <View style={styles.parkingAvailabilityContainer}>
-        <ParkingAvailability />
+        <View>
+          <ParkingServices />
+        </View>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  profileScreenContainer: {
-    flexGrow: 1,
+  profileNav: {
     backgroundColor: "rgba(255, 214, 19, 1)",
+  },
+  profileScreenContainer: {
+    backgroundColor: "rgba(19, 18, 18, 1)",
     padding: 16,
     alignItems: "center",
-    justifyContent: "space-between",
   },
   topSection: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
     marginBottom: 36,
     alignItems: "center",
-    paddingHorizontal: 16,
   },
   profileHeaderContainer: {
     flexDirection: "row",
@@ -116,7 +128,6 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "100%",
   },
   addVehicleContainer: {
     flexDirection: "row",
@@ -145,9 +156,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
+  userParkings: {
+    // backgroundColor: "black",
+  },
   parkingAvailabilityContainer: {
-    width: "100%",
-    // marginTop: 24,
+    marginTop: 24,
   },
 });
 
