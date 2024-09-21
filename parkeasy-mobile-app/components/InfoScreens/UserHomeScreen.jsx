@@ -10,6 +10,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import ParkingAvailability from "./ParkingAvailability";
 import ParkingServices from "./ParkingServices";
+import TrendingSection from "./TrendingSection";
+import OfferCard from "./OfferCard";
+import ExclusiveOffers from "./ExclusiveOffers";
+import MainComponent from "./MainComponent";
 
 const UserHomeScreen = () => {
   const screenWidth = Dimensions.get("window").width;
@@ -63,6 +67,18 @@ const UserHomeScreen = () => {
         </View>
         <View>
           <ParkingServices />
+        </View>
+        <View>
+          <TrendingSection />
+        </View>
+        <View>
+          <OfferCard />
+        </View>
+        <View>
+          <ExclusiveOffers />
+        </View>
+        <View>
+          <MainComponent />
         </View>
       </View>
     </ScrollView>
