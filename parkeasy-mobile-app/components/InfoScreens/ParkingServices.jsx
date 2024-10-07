@@ -1,26 +1,25 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-
+import Workplace from "../../screenImages/workplace.png";
+import ShoppingMall from "../../screenImages/shoppingmall.png";
+import Restaurants from "../../screenImages/restaurants.png";
+import ResidentialArea from "../../screenImages/residentalarea.png";
 const categories = [
   {
     title: "Workplace",
-    imageUri:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/5e4683ec82f15b22548aaf734d51d57ebc112efe0a53b9ba55cd70cbbe04388d?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    imageUri: Workplace, // Use the imported image directly
   },
   {
     title: "Shopping Mall",
-    imageUri:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/282654de8565e8b69e2abd041591cf3abb9ab141b6bd22d4c67be2cdc9deb793?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    imageUri: ShoppingMall,
   },
   {
     title: "Restaurants",
-    imageUri:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/33af301f4de76396a5d00b90736abacb517f14fd1034670e41c84351236d5029?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    imageUri: Restaurants,
   },
   {
     title: "Residential area",
-    imageUri:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/e98f98534b2e99eba5aa8b2a593e40aaa646d5e6215862d07b11e73af5f4159e?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    imageUri: ResidentialArea,
   },
 ];
 
@@ -53,7 +52,7 @@ function ParkingServices() {
           <View key={index} style={styles.categoryContainer}>
             <Image
               resizeMode="contain"
-              source={{ uri: category.imageUri }}
+              source={category.imageUri}
               style={styles.categoryImage}
             />
             <Text style={styles.categoryTitle}>{category.title}</Text>

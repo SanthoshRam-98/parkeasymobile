@@ -1,20 +1,20 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import Rewards from "../../screenImages/rewards.svg"; // Importing SVG as a component
+import Discounts from "../../screenImages/discounts.svg";
+import ReferandWin from "../../screenImages/refer&win.svg";
 
 const offerData = [
   {
-    image:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/c3ab93d803ec844e1e290f6c92e13c9f3b9db8a51c98b1de1759187d6a7db0c3?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    image: Rewards, // SVG Component
     title: "Rewards",
   },
   {
-    image:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/9d1fff1f1f666f3e09db6e57b26e3e6c154ee2607301340bc63a641d0abf2c0c?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    image: Discounts,
     title: "Discounts",
   },
   {
-    image:
-      "https://cdn.builder.io/api/v1/image/assets/TEMP/136a43db1254f805cf52a3453d0ee041d2cc9c5be0fb13a373e1850cee466a2b?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
+    image: ReferandWin,
     title: "Refer & Win",
   },
 ];
@@ -25,11 +25,8 @@ const ExclusiveOffers = () => (
     <View style={styles.offerItemsContainer}>
       {offerData.map((offer, index) => (
         <View key={index} style={styles.offerItem}>
-          <Image
-            resizeMode="contain"
-            source={{ uri: offer.image }}
-            style={styles.offerImage}
-          />
+          {/* Render SVG directly */}
+          <offer.image width={48} height={48} />
           <Text style={styles.offerText}>{offer.title}</Text>
         </View>
       ))}
@@ -45,6 +42,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     alignSelf: "flex-start",
+    color: "white",
   },
   offerItemsContainer: {
     flexDirection: "row",
@@ -66,6 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "400",
     textAlign: "center",
+    color: "white",
   },
 });
 

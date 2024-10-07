@@ -1,3 +1,4 @@
+// UserHomeScreen.js
 import React from "react";
 import {
   View,
@@ -6,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import ParkingAvailability from "./ParkingAvailability";
@@ -13,10 +15,33 @@ import ParkingServices from "./ParkingServices";
 import TrendingSection from "./TrendingSection";
 import OfferCard from "./OfferCard";
 import ExclusiveOffers from "./ExclusiveOffers";
-import MainComponent from "./MainComponent";
+import BottomNavigationBar from "./BottomNavigationBar"; // Importing the new component
+import BottomImage1 from "../../screenImages/bottomimage1.svg";
+import BottomImage2 from "../../screenImages/bottomimage2.svg";
+import BottomImage3 from "../../screenImages/bottomimage3.svg";
+import BottomImage4 from "../../screenImages/bottomimage4.svg";
 
 const UserHomeScreen = () => {
   const screenWidth = Dimensions.get("window").width;
+
+  const navigationItems = [
+    {
+      Component: BottomImage1,
+      isActive: true,
+    },
+    {
+      Component: BottomImage2,
+      isActive: false,
+    },
+    {
+      Component: BottomImage3,
+      isActive: false,
+    },
+    {
+      Component: BottomImage4,
+      isActive: false,
+    },
+  ];
 
   return (
     <ScrollView contentContainerStyle={styles.profileScreenContainer}>
@@ -45,7 +70,7 @@ const UserHomeScreen = () => {
         </View>
 
         <View style={styles.bottomSection}>
-          <View style={[styles.buttonsContainer, { width: screenWidth * 0.9 }]}>
+          <View style={[styles.buttonsContainer]}>
             <TouchableOpacity style={styles.addVehicleContainer}>
               <Ionicons name="add-circle-outline" size={24} color="black" />
               <Text style={styles.addVehicleText}>Add Vehicle</Text>
@@ -56,13 +81,9 @@ const UserHomeScreen = () => {
           </View>
         </View>
       </View>
+
       <View style={styles.userParkings}>
-        <View
-          style={[
-            styles.parkingAvailabilityContainer,
-            { width: screenWidth * 0.9 },
-          ]}
-        >
+        <View style={[styles.parkingAvailabilityContainer]}>
           <ParkingAvailability />
         </View>
         <View>
@@ -77,10 +98,10 @@ const UserHomeScreen = () => {
         <View>
           <ExclusiveOffers />
         </View>
-        <View>
-          <MainComponent />
-        </View>
       </View>
+
+      {/* Bottom Navigation Bar */}
+      <BottomNavigationBar navigationItems={navigationItems} />
     </ScrollView>
   );
 };
@@ -162,21 +183,21 @@ const styles = StyleSheet.create({
   earnButton: {
     borderRadius: 10,
     backgroundColor: "rgba(19, 18, 18, 1)",
-    padding: 15,
+    padding: 12,
     flex: 1,
+    justifyContent: "center",
     alignItems: "center",
   },
   earnButtonText: {
-    color: "rgba(255, 255, 255, 1)",
-    textAlign: "center",
-    fontSize: 12,
-    fontWeight: "500",
+    fontSize: 14,
+    color: "#ffffff",
   },
   userParkings: {
-    // backgroundColor: "black",
+    width: "100%",
+    marginBottom: 80,
   },
   parkingAvailabilityContainer: {
-    marginTop: 24,
+    marginBottom: 16,
   },
 });
 

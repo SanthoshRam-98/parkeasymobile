@@ -1,6 +1,14 @@
 import React from "react";
-import { View, StyleSheet, Text, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import MapView from "react-native-maps";
+import { Ionicons } from "@expo/vector-icons"; // Import Ionicons
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation
 
 const parkingOptions = [
   {
@@ -16,6 +24,8 @@ const parkingOptions = [
 ];
 
 function ParkingAvailability() {
+  const navigation = useNavigation(); // Get navigation object
+
   return (
     <View style={styles.container}>
       <MapView
@@ -27,6 +37,12 @@ function ParkingAvailability() {
           longitudeDelta: 0.0421,
         }}
       />
+      <TouchableOpacity
+        style={styles.maximizeButton}
+        onPress={() => navigation.navigate("FullScreenMap")} // Navigate to FullScreenMap
+      >
+        <Ionicons name="expand" size={24} color="white" />
+      </TouchableOpacity>
       <View style={styles.contentContainer}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Parking Availability</Text>
@@ -66,6 +82,15 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: Dimensions.get("window").height * 0.4, // 40% of screen height
+  },
+  maximizeButton: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    zIndex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Optional: add background for visibility
+    borderRadius: 20,
+    padding: 8,
   },
   contentContainer: {
     flex: 1,

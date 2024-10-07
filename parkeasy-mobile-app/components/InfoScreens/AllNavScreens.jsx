@@ -11,7 +11,7 @@ import LoginScreen from "./LoginScreen";
 import OTPVerification from "./OTPVerification";
 import VehicleInputs from "./VehicleInputs";
 import UserHomeScreen from "./UserHomeScreen";
-
+import FullScreenMap from "../MapScreen/FullScreenMap";
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
   return (
@@ -33,7 +33,8 @@ const AllNavScreens = () => {
       <Stack.Screen name="OTPVerification" component={OTPVerification} />
       <Stack.Screen name="VehicleInputs" component={VehicleInputs} />
       <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} />
-      {/* <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} /> */}
+      <Stack.Screen name="FullScreenMap" component={FullScreenMap} />
+      {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );
 };

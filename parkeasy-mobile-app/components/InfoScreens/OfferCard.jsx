@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, Image, StyleSheet } from "react-native";
-
+import OfferCards from "../../screenImages/offercards.png";
 const OfferCard = () => (
   <View style={styles.offerCardContainer}>
     <View style={styles.offerContent}>
@@ -13,9 +13,7 @@ const OfferCard = () => (
     <View style={styles.customerInfo}>
       <Image
         resizeMode="contain"
-        source={{
-          uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/e10f05e2c77699350d6611b8c924b4549d854e3c5894729a3526ff5d51ebed31?placeholderIfAbsent=true&apiKey=1e478041483c415d8c6ecd66dd4ddacc",
-        }}
+        source={OfferCards}
         style={styles.customerImage}
       />
       <View style={styles.customerStats}>
