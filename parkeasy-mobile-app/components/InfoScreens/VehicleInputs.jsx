@@ -33,7 +33,10 @@ function VehicleSetup() {
   const handleInputChange = (id, value) => {
     setFormData({ ...formData, [id]: value });
   };
+
   const handleSubmit = async () => {
+    // Commented out the API call for development purposes
+    /*
     try {
       const response = await fetch(
         "http://192.168.225.160:3001/api/v1/vehicle_details",
@@ -64,6 +67,12 @@ function VehicleSetup() {
     } catch (error) {
       console.error("Error:", error);
     }
+    */
+
+    // Static response for development
+    console.log("Vehicle details submission disabled for development.");
+    // Optionally, you can navigate to the next screen without saving
+    navigation.navigate("UserHomeScreen");
   };
 
   return (
