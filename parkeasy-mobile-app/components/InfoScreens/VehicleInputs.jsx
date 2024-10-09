@@ -33,6 +33,38 @@ function VehicleSetup() {
   const handleInputChange = (id, value) => {
     setFormData({ ...formData, [id]: value });
   };
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch(
+        "http://192.168.225.160:3001/api/v1/vehicle_details",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            vehicle_detail: {
+              vehicle_number: formData.vehicleNumber,
+              name: formData.name,
+              license_number: formData.licenseNumber,
+            },
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const jsonResponse = await response.json();
+        console.log(jsonResponse.message);
+        navigation.navigate("UserHomeScreen");
+      } else {
+        console.error("Failed to save vehicle details");
+        const errorResponse = await response.text(); // Log error response text for further investigation
+        console.log(errorResponse);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -78,7 +110,7 @@ function VehicleSetup() {
         {/* Submit Button */}
         <TouchableOpacity
           style={[styles.submitButton, { marginBottom: insets.bottom + 20 }]}
-          onPress={() => navigation.navigate("UserHomeScreen")}
+          onPress={handleSubmit}
         >
           <Text style={styles.submitText}>Submit</Text>
         </TouchableOpacity>
