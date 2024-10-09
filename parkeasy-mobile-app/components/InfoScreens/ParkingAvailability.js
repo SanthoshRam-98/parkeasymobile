@@ -5,6 +5,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import MapView from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons"; // Import Ionicons
@@ -27,7 +28,9 @@ function ParkingAvailability() {
   const navigation = useNavigation(); // Get navigation object
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[styles.container, { padding: Platform.OS === "web" ? 20 : 10 }]}
+    >
       <MapView
         style={styles.map}
         initialRegion={{
