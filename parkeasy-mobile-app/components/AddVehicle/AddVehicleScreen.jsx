@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -15,6 +15,21 @@ import Addvehicleimage from "../../screenImages/Vehicles/AddVehicle.svg";
 const AddVehicleScreen = ({ navigation }) => {
   const { height } = Dimensions.get("window");
   const insets = useSafeAreaInsets();
+
+  // State for vehicle details
+  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehicleName, setVehicleName] = useState("");
+
+  const handleAddVehicle = () => {
+    // Navigate to CarNav screen with vehicle details
+    navigation.navigate("CarNav", {
+      vehicleNumber,
+      vehicleName,
+    });
+    // Reset input fields
+    setVehicleNumber("");
+    setVehicleName("");
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -48,6 +63,8 @@ const AddVehicleScreen = ({ navigation }) => {
             placeholder="TN 00 AA 0000"
             placeholderTextColor="rgba(140, 140, 140, 1)"
             accessibilityLabel="Enter vehicle number"
+            value={vehicleNumber}
+            onChangeText={setVehicleNumber} // Update state
           />
         </View>
         <View style={styles.headerTextContainer}>
@@ -58,6 +75,36 @@ const AddVehicleScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Honda Civic"
             placeholderTextColor="rgba(140, 140, 140, 1)"
+            value={vehicleName}
+            onChangeText={setVehicleName} // Update state
+          />
+        </View>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>
+            Insurance Certificate Policy Number
+          </Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder=" AB00 00G0"
+            placeholderTextColor="rgba(140, 140, 140, 1)"
+            value={vehicleName}
+            onChangeText={setVehicleName} // Update state
+          />
+        </View>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>
+            Pollution Certificate Policy Number (Optional)
+          </Text>
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder=" AB00 00J0"
+            placeholderTextColor="rgba(140, 140, 140, 1)"
+            value={vehicleName}
+            onChangeText={setVehicleName} // Update state
           />
         </View>
         <View style={styles.descriptionContainer}>
@@ -69,7 +116,7 @@ const AddVehicleScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.button}
           accessibilityRole="button"
-          onPress={() => navigation.navigate("CarNav")}
+          onPress={handleAddVehicle} // Use the new function
         >
           <Text style={styles.buttonText}>Add Vehicle Details</Text>
         </TouchableOpacity>
@@ -120,7 +167,7 @@ const styles = StyleSheet.create({
   headerImage: {
     marginTop: 32,
     // marginTop: 10, // Adjusted to reduce extra space
-    aspectRatio: 1.05,
+    aspectRatio: 1,
   },
   headerTextContainer: {
     alignSelf: "center",

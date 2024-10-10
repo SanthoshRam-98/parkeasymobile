@@ -19,6 +19,7 @@ import AddVehicleScreen from "../AddVehicle/AddVehicleScreen"; // New screen for
 import EarnScreen from "../EarnWithUs/EarnScreen"; // New screen for earning
 // import HondaCivicDetailsScreen from "../NavBar/HondaCivicDetailsScreen";
 // import OLADetailsScreen from "../NavBar/OLADetailsScreen";
+import VehicleDetails from "../AddVehicle/VehicleDetails";
 
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
@@ -50,8 +51,8 @@ const AllNavScreens = () => {
       {/* <Stack.Screen
         name="HondaCivicDetailsScreen"
         component={HondaCivicDetailsScreen}
-      />
-      <Stack.Screen name="OLADetailsScreen" component={OLADetailsScreen} /> */}
+      />*/}
+      <Stack.Screen name="VehicleDetails" component={VehicleDetails} />
 
       {/* Add FullScreenMap here */}
     </Stack.Navigator>

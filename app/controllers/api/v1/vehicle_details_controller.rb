@@ -12,7 +12,7 @@ class Api::V1::VehicleDetailsController < ApplicationController
     private
   
     def vehicle_detail_params
-      params.require(:vehicle_detail).permit(:vehicle_number, :name, :license_number)
+      params.require(:vehicle).permit(:vehicle_number, :name, :license_number, :vehicle_type)
     end
   end
   

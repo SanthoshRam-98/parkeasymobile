@@ -3,15 +3,16 @@ import {
   View,
   Text,
   TextInput,
-  Image,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import VehicleInputs from "/Users/santh/OneDrive/Desktop/parkeasymobile/parkeasy-mobile-app/screenImages/vehicletypes.svg";
-import { useNavigation } from "@react-navigation/native"; // Import useNavigation
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width } = Dimensions.get("window");
 
@@ -21,63 +22,58 @@ const vehicleInputs = [
   { label: "Driving License Number", id: "licenseNumber" },
 ];
 
+const vehicleTypes = [
+  { type: "Car", icon: "car-outline" },
+  { type: "Bike", icon: "bicycle-outline" },
+];
+
 function VehicleSetup() {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation(); // Use useNavigation to get access to the navigation object
+  const navigation = useNavigation();
   const [formData, setFormData] = useState({
     vehicleNumber: "",
     name: "",
     licenseNumber: "",
+    vehicleType: null,
   });
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setFormData({
+        vehicleNumber: "",
+        name: "",
+        licenseNumber: "",
+        vehicleType: null,
+      });
+    }, [])
+  );
 
   const handleInputChange = (id, value) => {
     setFormData({ ...formData, [id]: value });
   };
 
+  const handleVehicleTypeSelect = (type) => {
+    setFormData({ ...formData, vehicleType: type });
+  };
+
   const handleSubmit = async () => {
-    // Commented out the API call for development purposes
-    /*
-    try {
-      const response = await fetch(
-        "http://192.168.225.160:3001/api/v1/vehicle_details",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            vehicle_detail: {
-              vehicle_number: formData.vehicleNumber,
-              name: formData.name,
-              license_number: formData.licenseNumber,
-            },
-          }),
-        }
-      );
+    const { vehicleNumber, name, licenseNumber, vehicleType } = formData;
 
-      if (response.ok) {
-        const jsonResponse = await response.json();
-        console.log(jsonResponse.message);
-        navigation.navigate("UserHomeScreen");
-      } else {
-        console.error("Failed to save vehicle details");
-        const errorResponse = await response.text(); // Log error response text for further investigation
-        console.log(errorResponse);
-      }
-    } catch (error) {
-      console.error("Error:", error);
+    if (!vehicleNumber || !name || !licenseNumber || !vehicleType) {
+      alert("Please fill in all required fields.");
+      return;
     }
-    */
 
-    // Static response for development
-    console.log("Vehicle details submission disabled for development.");
-    // Optionally, you can navigate to the next screen without saving
-    navigation.navigate("UserHomeScreen");
+    navigation.navigate("CarNav", {
+      vehicleNumber,
+      vehicleName: name,
+      licenseNumber,
+      vehicleType, // Add vehicleType here
+    });
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.logo}>Park.Easy</Text>
         <TouchableOpacity style={styles.skipButton} accessibilityRole="button">
@@ -85,15 +81,16 @@ function VehicleSetup() {
         </TouchableOpacity>
       </View>
 
-      {/* Content */}
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.content}
+      >
         <Text style={styles.title}>Hello</Text>
         <Text style={styles.subtitle}>
           Let's setup your Vehicle profile for a better experience
         </Text>
         <Text style={styles.sectionTitle}>Vehicle Details</Text>
 
-        {/* Input Fields */}
         <View style={styles.form}>
           {vehicleInputs.map((input) => (
             <View key={input.id} style={styles.inputContainer}>
@@ -106,24 +103,34 @@ function VehicleSetup() {
               />
             </View>
           ))}
-          <Text style={styles.vehicleType}>Vehicle Type</Text>
-          <VehicleInputs
-            style={styles.vehicleImage}
-            accessibilityLabel="Vehicle type illustration"
-          />
+          <Text style={styles.vehicleTypeLabel}>Select the Vehicle Type</Text>
+          <View style={styles.vehicleTypeContainer}>
+            {vehicleTypes.map((vehicle) => (
+              <TouchableOpacity
+                key={vehicle.type}
+                style={[
+                  styles.vehicleButton,
+                  formData.vehicleType === vehicle.type &&
+                    styles.selectedVehicle,
+                ]}
+                onPress={() => handleVehicleTypeSelect(vehicle.type)}
+              >
+                <Ionicons name={vehicle.icon} size={40} color="white" />
+                <Text style={styles.vehicleText}>{vehicle.type}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
-        {/* Spacer to push the button to the bottom */}
         <View style={styles.spacer} />
 
-        {/* Submit Button */}
         <TouchableOpacity
           style={[styles.submitButton, { marginBottom: insets.bottom + 20 }]}
           onPress={handleSubmit}
         >
           <Text style={styles.submitText}>Submit</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -132,7 +139,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "rgba(19, 18, 18, 1)",
     flex: 1,
-    paddingHorizontal: 16, // Ensure padding to prevent content from touching the edges
+    paddingHorizontal: 16,
   },
   header: {
     width: "100%",
@@ -160,11 +167,13 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 1)",
     fontWeight: "300",
   },
-  content: {
-    width: "100%",
-    maxWidth: 480,
-    alignItems: "center",
+  scrollContainer: {
     flex: 1,
+  },
+  content: {
+    alignItems: "center",
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   title: {
     color: "rgba(255, 214, 19, 1)",
@@ -191,7 +200,7 @@ const styles = StyleSheet.create({
   form: {
     width: "100%",
     marginTop: 36,
-    flexGrow: 1, // Allow form to grow and take space
+    flexGrow: 1,
   },
   inputContainer: {
     marginBottom: 28,
@@ -210,21 +219,37 @@ const styles = StyleSheet.create({
     borderColor: "rgba(140, 140, 140, 1)",
     color: "rgba(255, 255, 255, 1)",
   },
-  vehicleType: {
+  vehicleTypeLabel: {
     color: "rgba(255, 255, 255, 1)",
     fontSize: 20,
     fontWeight: "500",
     textAlign: "center",
     marginTop: 36,
   },
-  vehicleImage: {
-    alignSelf: "center",
-    marginTop: 16,
-    width: width * 0.5, // Adjust width for responsiveness
-    aspectRatio: 2.33,
+  vehicleTypeContainer: {
+    flexDirection: "row",
+    justifyContent: "center", // Center the icons horizontally
+    marginTop: 10,
+  },
+  vehicleButton: {
+    alignItems: "center",
+    backgroundColor: "transparent",
+    borderRadius: 10,
+    borderWidth: 1, // Add border width for icon buttons
+    borderColor: "rgba(140, 140, 140, 1)", // Border color for icons
+    padding: 10,
+    marginHorizontal: 5, // Add margin for spacing between buttons
+    width: width * 0.4,
+  },
+  selectedVehicle: {
+    backgroundColor: "rgba(255, 214, 19, 0.5)",
+  },
+  vehicleText: {
+    color: "white",
+    marginTop: 5,
   },
   spacer: {
-    flex: 1, // Allow spacer to fill available space
+    flex: 1,
   },
   submitButton: {
     borderRadius: 10,

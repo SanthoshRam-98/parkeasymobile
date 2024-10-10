@@ -4,77 +4,90 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  FlatList,
   SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons"; // Import Ionicons from expo
+import { Ionicons } from "@expo/vector-icons";
 import BottomNavigationBar from "../InfoScreens/BottomNavigationBar";
 import CarImage from "../../screenImages/Vehicles/CarImage.svg";
-import CycleImage from "../../screenImages/Vehicles/CycleImage.svg";
+import BikeImage from "../../screenImages/Vehicles/CycleImage.svg";
 
-const vehicleData = [
-  {
-    name: "Honda Civic",
-    licensePlate: "TN 00 AA 0000",
-    image: CarImage,
-  },
-  {
-    name: "OLA",
-    licensePlate: "TN 00 AA 0000",
-    image: CycleImage,
-  },
-];
-
-function MyVehicleScreen() {
+function MyVehicleScreen({ route }) {
   const navigation = useNavigation();
-  const [activeVehicleIndex, setActiveVehicleIndex] = useState(null); // Separate state for vehicle cards
-  const [activeNavIndex, setActiveNavIndex] = useState(1); // State for BottomNavigationBar
+  const [activeVehicleIndex, setActiveVehicleIndex] = useState(null);
+  const [vehicleList, setVehicleList] = useState([]);
+  const [activeNavIndex, setActiveNavIndex] = useState(1);
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      setActiveNavIndex(1); // Reset active navigation index when focusing on this screen
-    });
+    if (route.params?.vehicleNumber && route.params?.vehicleName) {
+      setVehicleList((prevVehicles) => [
+        ...prevVehicles,
+        {
+          name: route.params.vehicleName,
+          licensePlate: route.params.vehicleNumber,
+          image: CarImage, // Default image
+          ownerName: "Kaarthikeyan S V", // Add owner name or fetch dynamically
+        },
+      ]);
+    }
+  }, [route.params]);
 
-    return unsubscribe; // Cleanup listener on unmount
-  }, [navigation]);
+  const handleAddVehicle = () => {
+    navigation.navigate("VehicleInputs");
+  };
 
-  const navigationItems = [
-    {
-      iconName: "home-outline",
-      route: "UserHomeScreen",
-    },
-    {
-      iconName: "car-outline",
-      route: "CarNav",
-    },
-    {
-      iconName: "calendar-outline",
-      route: "BookingNav",
-    },
-    {
-      iconName: "person-outline",
-      route: "ProfileNav",
-    },
-  ];
+  const renderVehicleCard = ({ item, index }) => (
+    <TouchableOpacity
+      style={[
+        styles.vehicleCard,
+        index === activeVehicleIndex && styles.activeVehicleCard,
+        index === activeVehicleIndex && styles.activeBorder,
+      ]}
+      onPress={() => {
+        setActiveVehicleIndex(index);
+        navigation.navigate("VehicleDetails", {
+          vehicleName: item.name,
+          vehicleNumber: item.licensePlate,
+          ownerName: item.ownerName,
+        });
+      }}
+    >
+      <View style={styles.infoContainer}>
+        {React.createElement(item.image, { width: 80, height: 80 })}
+        <View style={styles.textContainer}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.licensePlate}>{item.licensePlate}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>My Vehicle</Text>
       </View>
+
       <View style={styles.vehicleList}>
-        {vehicleData.map((vehicle, index) => (
+        {vehicleList.map((vehicle, index) => (
           <TouchableOpacity
             key={index}
             style={[
               styles.vehicleCard,
-              index === activeVehicleIndex && styles.activeVehicleCard, // Highlight selected vehicle
-              index === activeVehicleIndex && styles.activeBorder, // Add border to selected vehicle
+              index === activeVehicleIndex && styles.activeVehicleCard,
+              index === activeVehicleIndex && styles.activeBorder,
             ]}
-            onPress={() => setActiveVehicleIndex(index)} // Update vehicle card selection
+            onPress={() => {
+              setActiveVehicleIndex(index);
+              navigation.navigate("VehicleDetails", {
+                vehicleName: vehicle.name,
+                vehicleNumber: vehicle.licensePlate,
+                ownerName: vehicle.ownerName,
+              });
+            }}
           >
             <View style={styles.infoContainer}>
-              {/* Render SVG directly here */}
               {React.createElement(vehicle.image, { width: 80, height: 80 })}
               <View style={styles.textContainer}>
                 <Text style={styles.name}>{vehicle.name}</Text>
@@ -83,9 +96,10 @@ function MyVehicleScreen() {
             </View>
           </TouchableOpacity>
         ))}
-        <TouchableOpacity style={styles.vehicleCard}>
+
+        {/* Add Vehicle Button */}
+        <TouchableOpacity style={styles.vehicleCard} onPress={handleAddVehicle}>
           <View style={styles.infoContainer}>
-            {/* Use an Ionic icon instead of PlusImage */}
             <View style={styles.iconContainer}>
               <Ionicons name="add" size={40} color="rgba(255, 214, 19, 1)" />
               <View style={styles.textContainer}>
@@ -95,10 +109,16 @@ function MyVehicleScreen() {
           </View>
         </TouchableOpacity>
       </View>
+
       <BottomNavigationBar
-        navigationItems={navigationItems}
-        activeIndex={activeNavIndex} // Keep navigation index separate
-        setActiveIndex={setActiveNavIndex} // Use setActiveNavIndex for navigation
+        navigationItems={[
+          { iconName: "home-outline", route: "UserHomeScreen" },
+          { iconName: "car-outline", route: "CarNav" },
+          { iconName: "calendar-outline", route: "BookingNav" },
+          { iconName: "person-outline", route: "ProfileNav" },
+        ]}
+        activeIndex={activeNavIndex}
+        setActiveIndex={setActiveNavIndex}
         style={styles.bottomNav}
       />
     </SafeAreaView>
@@ -106,31 +126,13 @@ function MyVehicleScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 16,
-    backgroundColor: "#1a1a1a",
-  },
-  iconContainer: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    width: "100%",
-  },
-  header: {
-    marginBottom: 16,
-  },
+  container: { flex: 1, paddingHorizontal: 16, backgroundColor: "#1a1a1a" },
+  header: { marginBottom: 16, marginTop: 16 },
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
     color: "rgba(255, 214, 19, 1)",
-  },
-  vehicleList: {
-    flex: 1,
-    marginBottom: 16,
   },
   vehicleCard: {
     borderRadius: 10,
@@ -139,35 +141,20 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 16,
     backgroundColor: "#333",
-    width: "100%", // Ensuring full width
-    alignItems: "flex-start", // Align items to start for side-by-side
+    alignItems: "flex-start",
   },
-  activeVehicleCard: {
-    backgroundColor: "rgba(255, 214, 19, 0.3)",
-  },
-  activeBorder: {
-    borderColor: "rgba(255, 214, 19, 1)",
-    borderWidth: 1, // Ensure border is visible
-  },
+  activeVehicleCard: { backgroundColor: "rgba(255, 214, 19, 0.3)" },
+  activeBorder: { borderColor: "rgba(255, 214, 19, 1)", borderWidth: 1 },
   infoContainer: {
-    flexDirection: "row", // Change to row for side-by-side alignment
-    alignItems: "center", // Center align the items vertically
+    flexDirection: "row",
+    alignItems: "center",
     textAlign: "center",
   },
-  textContainer: {
-    marginLeft: 16, // Space between image and text
-  },
-  name: {
-    fontSize: 16,
-    color: "rgba(255, 214, 19, 1)",
-  },
-  licensePlate: {
-    fontSize: 12,
-    color: "rgba(255, 255, 255, 0.7)",
-  },
-  bottomNav: {
-    width: "100%",
-  },
+  textContainer: { marginLeft: 16 },
+  name: { fontSize: 16, color: "rgba(255, 214, 19, 1)" },
+  licensePlate: { fontSize: 12, color: "rgba(255, 255, 255, 0.7)" },
+  iconContainer: { flexDirection: "row", alignItems: "center" },
+  bottomNav: { width: "100%" },
 });
 
 export default MyVehicleScreen;
