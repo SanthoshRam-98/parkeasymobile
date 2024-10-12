@@ -22,6 +22,7 @@ import EarnScreen from "../EarnWithUs/EarnScreen"; // New screen for earning
 import VehicleDetails from "../AddVehicle/VehicleDetails";
 import ListYourSpaceScreen from "../ListYourSpace/ListYourSpaceScreen";
 import ParkingSpaceDetailsScreen from "../ListYourSpace/ParkingSpaceDetailsScreen";
+import ConfirmationScreen from "../ListYourSpace/ConfirmationScreen";
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
   return (
@@ -62,6 +63,7 @@ const AllNavScreens = () => {
         name="ParkingSpaceDetailsScreen"
         component={ParkingSpaceDetailsScreen}
       />
+      <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} />
       {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );

@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
+import { useNavigation, useRoute } from "@react-navigation/native"; // Import useRoute
+import axios from "axios"; // Import axios
 
 const ParkingSpaceDetailsScreen = () => {
   const [buildingName, setBuildingName] = useState("");
@@ -19,7 +21,14 @@ const ParkingSpaceDetailsScreen = () => {
   const [fourWheelerCount, setFourWheelerCount] = useState(0);
   const [parkingImages, setParkingImages] = useState([]);
   const [selectedFeatures, setSelectedFeatures] = useState([]);
-
+  const [hourlyRate, setHourlyRate] = useState("");
+  const [dayRate, setDayRate] = useState("");
+  const [weekRate, setWeekRate] = useState("");
+  const [monthRate, setMonthRate] = useState("");
+  const [sixMonthsRate, setSixMonthsRate] = useState("");
+  const [yearRate, setYearRate] = useState("");
+  const [loading, setLoading] = useState(false); // Loading state
+  const navigation = useNavigation();
   const features = [
     { icon: "videocam", name: "CCTV" },
     { icon: "sunny", name: "Lighting" },
@@ -27,7 +36,8 @@ const ParkingSpaceDetailsScreen = () => {
     { icon: "home", name: "Basement" },
     { icon: "car-sport", name: "Covered Parking" },
   ];
-
+  const route = useRoute(); // Use useRoute to access the navigation parameters
+  const { location } = route.params; // Destructure the location from params
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -36,9 +46,14 @@ const ParkingSpaceDetailsScreen = () => {
       quality: 1,
     });
 
-    if (!result.cancelled) {
-      setParkingImages([...parkingImages, result.uri]);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const selectedImage = result.assets[0].uri;
+      setParkingImages([...parkingImages, selectedImage]);
     }
+  };
+
+  const removeImage = (index) => {
+    setParkingImages(parkingImages.filter((_, i) => i !== index));
   };
 
   const increaseCounter = (type) => {
@@ -60,6 +75,80 @@ const ParkingSpaceDetailsScreen = () => {
       );
     } else {
       setSelectedFeatures([...selectedFeatures, featureName]);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!buildingName || !address) {
+      Alert.alert("Error", "Building name and address are required.");
+      return;
+    }
+
+    setLoading(true); // Set loading to true
+
+    try {
+      // Prepare the form data
+      const formData = new FormData();
+
+      // Append other data fields to FormData
+      formData.append("building_name", buildingName);
+      formData.append("address", address);
+      formData.append("two_wheeler_count", twoWheelerCount);
+      formData.append("four_wheeler_count", fourWheelerCount);
+
+      // Append parking images as files
+      parkingImages.forEach((imageUri, index) => {
+        const fileName = imageUri.split("/").pop();
+        const fileType = fileName.split(".").pop();
+
+        formData.append("parking_images[]", {
+          uri: imageUri,
+          name: fileName,
+          type: `image/${fileType}`,
+        });
+      });
+
+      // Append selected features
+      selectedFeatures.forEach((feature, index) => {
+        formData.append(`selected_features[]`, feature);
+      });
+
+      // Append rates
+      formData.append("rates[hourly]", parseFloat(hourlyRate));
+      formData.append("rates[daily]", parseFloat(dayRate));
+      formData.append("rates[weekly]", parseFloat(weekRate));
+      formData.append("rates[monthly]", parseFloat(monthRate));
+      formData.append("rates[six_months]", parseFloat(sixMonthsRate));
+      formData.append("rates[yearly]", parseFloat(yearRate));
+
+      formData.append("location_name", location.location_name);
+      formData.append("city", location.city);
+      formData.append("latitude", location.coordinates.latitude);
+      formData.append("longitude", location.coordinates.longitude);
+
+      // Send POST request to backend with FormData
+      const response = await axios.post(
+        "http://192.168.225.160:3000/api/v1/parking_spaces",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        navigation.navigate("ConfirmationScreen", {
+          // Pass necessary data to confirmation screen
+        });
+      } else {
+        Alert.alert("Error", "Failed to save parking space details");
+      }
+    } catch (error) {
+      console.error("Error submitting data: ", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false); // Set loading to false
     }
   };
 
@@ -143,17 +232,71 @@ const ParkingSpaceDetailsScreen = () => {
         <View style={styles.imageContainer}>
           {parkingImages.length > 0 &&
             parkingImages.map((image, index) => (
-              <Image
-                key={index}
-                source={{ uri: image }}
-                style={styles.parkingImage}
-              />
+              <View key={index} style={styles.imageWrapper}>
+                <Image source={{ uri: image }} style={styles.parkingImage} />
+                <TouchableOpacity
+                  style={styles.removeIcon}
+                  onPress={() => removeImage(index)}
+                >
+                  <Ionicons name="trash" size={24} color="#FFF" />
+                </TouchableOpacity>
+              </View>
             ))}
-
           <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
-            <Ionicons name="camera" size={30} color="#FFF" />
+            <Ionicons name="camera" size={30} color="black" />
             <Text style={styles.uploadText}>Upload Images</Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Charges Rate Form */}
+        <Text style={styles.sectionTitle}>Charges You Rate</Text>
+        <View style={styles.rateInputContainer}>
+          <TextInput
+            style={styles.rateInput}
+            placeholder="Hourly"
+            placeholderTextColor="#BFBFBF"
+            value={hourlyRate}
+            onChangeText={setHourlyRate}
+          />
+          <TextInput
+            style={styles.rateInput}
+            placeholder="Day"
+            placeholderTextColor="#BFBFBF"
+            value={dayRate}
+            onChangeText={setDayRate}
+          />
+        </View>
+        <View style={styles.rateInputContainer}>
+          <TextInput
+            style={styles.rateInput}
+            placeholder="Week"
+            placeholderTextColor="#BFBFBF"
+            value={weekRate}
+            onChangeText={setWeekRate}
+          />
+          <TextInput
+            style={styles.rateInput}
+            placeholder="Month"
+            placeholderTextColor="#BFBFBF"
+            value={monthRate}
+            onChangeText={setMonthRate}
+          />
+        </View>
+        <View style={styles.rateInputContainer}>
+          <TextInput
+            style={styles.rateInput}
+            placeholder="6 Months"
+            placeholderTextColor="#BFBFBF"
+            value={sixMonthsRate}
+            onChangeText={setSixMonthsRate}
+          />
+          <TextInput
+            style={styles.rateInput}
+            placeholder="12 Months"
+            placeholderTextColor="#BFBFBF"
+            value={yearRate}
+            onChangeText={setYearRate}
+          />
         </View>
 
         {/* Add Parking Spot Features */}
@@ -176,7 +319,7 @@ const ParkingSpaceDetailsScreen = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.submitButton}>
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Submit</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -200,12 +343,12 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   header: {
-    color: "#FFD613", // Changed to yellow for header
+    color: "#FFD613", // Yellow for header
     fontSize: 18,
     fontWeight: "bold",
   },
   sectionTitle: {
-    color: "#FFF", // Changed section title color to white
+    color: "#FFF", // White section title
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
@@ -217,7 +360,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     marginVertical: 8,
-    marginHorizontal: 0,
   },
   textArea: {
     height: 100,
@@ -257,23 +399,53 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginVertical: 20,
   },
-  parkingImage: {
-    width: "100%", // Ensures image uses full container width
+  imageWrapper: {
+    position: "relative",
+    width: "100%",
     height: 200,
-    resizeMode: "cover",
-    borderRadius: 10,
     marginBottom: 10,
   },
+  parkingImage: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+    borderRadius: 10,
+  },
+  removeIcon: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    padding: 5,
+    borderRadius: 20,
+    zIndex: 1,
+  },
   uploadButton: {
-    backgroundColor: "#333",
-    padding: 16,
-    borderRadius: 8,
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFD613",
+    padding: 10,
+    borderRadius: 8,
+    marginTop: 10,
   },
   uploadText: {
+    color: "#1a1a1a",
+    marginLeft: 10,
+    fontWeight: "bold",
+  },
+  rateInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  rateInput: {
+    backgroundColor: "#333333",
+    borderRadius: 8,
+    padding: 12,
     color: "#FFF",
-    marginTop: 10,
     fontSize: 16,
+    width: "48%",
+    marginBottom: 10,
   },
   featuresContainer: {
     flexDirection: "row",
@@ -301,12 +473,11 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 16,
+    marginTop: 20,
   },
   submitButtonText: {
     color: "#1a1a1a",
     fontWeight: "bold",
-    fontSize: 16,
   },
 });
 
