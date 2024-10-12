@@ -1,5 +1,5 @@
 import React from "react";
-import { View, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native"; // Use this for navigation
 
@@ -26,13 +26,9 @@ const BottomNavigationBar = ({
           >
             <Ionicons
               name={item.iconName}
-              size={24}
-              color={index === activeIndex ? "black" : "#000000"} // Black color when active
-              style={
-                index === activeIndex
-                  ? styles.activeIcon
-                  : styles.navigationIcon
-              }
+              size={24} // Maintain consistent size for the icons
+              color={index === activeIndex ? "black" : "#000000"} // Change color based on active state
+              style={styles.navigationIcon} // Consistent style
             />
             {index === activeIndex && <View style={styles.activeIndicator} />}
           </TouchableOpacity>
@@ -52,9 +48,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     paddingHorizontal: 20,
-    paddingTop: 23,
-    paddingBottom: 23,
-    // width: "100%",
+    paddingTop: 15, // Reduced padding
+    paddingBottom: 15, // Reduced padding
     zIndex: 10,
   },
   navigationItemsWrapper: {
@@ -67,13 +62,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   navigationIcon: {
-    width: 28,
-    height: 28,
-  },
-  activeIcon: {
-    width: 28,
-    height: 28,
-    tintColor: "#FFD600", // Default tint for icons
+    width: 24, // Icon width and height remain consistent
+    height: 24,
   },
   activeIndicator: {
     marginTop: 4,

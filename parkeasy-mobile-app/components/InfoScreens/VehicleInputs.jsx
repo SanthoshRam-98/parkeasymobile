@@ -56,7 +56,7 @@ function VehicleSetup() {
     setFormData({ ...formData, vehicleType: type });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const { vehicleNumber, name, licenseNumber, vehicleType } = formData;
 
     if (!vehicleNumber || !name || !licenseNumber || !vehicleType) {
@@ -64,11 +64,12 @@ function VehicleSetup() {
       return;
     }
 
-    navigation.navigate("CarNav", {
+    navigation.navigate("VehicleDetails", {
       vehicleNumber,
       vehicleName: name,
       licenseNumber,
-      vehicleType, // Add vehicleType here
+      vehicleType,
+      ownerName: name, // Adding ownerName to match the VehicleDetails structure
     });
   };
 

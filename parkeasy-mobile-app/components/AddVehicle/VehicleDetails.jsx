@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,39 +6,41 @@ import {
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
+  Modal, // For custom modal
+  ActivityIndicator, // For smooth loading indicator
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CarImage from "../../screenImages/Vehicles/CarImage.svg";
 import VerifiedBadge from "../../screenImages/Vehicles/verifybadge.svg";
 
-const { width } = Dimensions.get("window");
-const { height } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const VehicleDetails = ({ route, navigation }) => {
-  const { vehicleName, vehicleNumber, ownerName, licenseNumber, vehicleType } =
-    route.params; // Extract params
-  const insets = useSafeAreaInsets();
+  const {
+    vehicleName,
+    vehicleNumber,
+    ownerName,
+    licenseNumber,
+    vehicleType,
+    vehicleId,
+  } = route.params;
 
-  const handleDelete = () => {
-    console.log("Delete button clicked");
-    navigation.navigate("VehicleInputs", {
-      vehicleNumber: "",
-      vehicleName: "",
-      ownerName: "",
-    });
-  };
+  const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const insets = useSafeAreaInsets();
+  const [vehicleData, setVehicleData] = useState(null); // Store vehicle data
 
   const handleSubmit = async () => {
+    setLoading(true); // Show loading indicator
     try {
       const response = await fetch(
-        "http://192.168.96.160:3000/api/v1/vehicle_details",
+        "http://192.168.225.160:3000/api/v1/vehicle_details",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            vehicle: {
+            vehicle_detail: {
               vehicle_number: vehicleNumber,
               name: vehicleName,
               license_number: licenseNumber,
@@ -48,17 +50,33 @@ const VehicleDetails = ({ route, navigation }) => {
         }
       );
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
       const data = await response.json();
-      console.log("Vehicle saved:", data);
-      alert("Vehicle saved successfully!");
-      navigation.navigate("UserHomeScreen");
+      setVehicleData(data); // Store data for navigation
+      setModalMessage("Vehicle saved successfully!");
+      setModalVisible(true); // Show success message
     } catch (error) {
-      console.error("Error saving vehicle:", error);
-      alert("Failed to save vehicle. Please try again.");
+      setModalMessage("Failed to save vehicle. Please try again.");
+      setModalVisible(true); // Show error message
+    } finally {
+      setLoading(false); // Hide loading indicator
+    }
+  };
+
+  const handleModalClose = () => {
+    setModalVisible(false);
+    if (vehicleData) {
+      // Navigate to UserHomeScreen with the updated vehicle data
+      navigation.navigate("UserHomeScreen", {
+        vehicleId: vehicleData.id,
+        vehicleName: vehicleData.name,
+        vehicleNumber: vehicleData.vehicle_number,
+        ownerName: ownerName,
+        licenseNumber: vehicleData.license_number,
+        vehicleType: vehicleData.vehicle_type,
+      });
     }
   };
 
@@ -72,21 +90,18 @@ const VehicleDetails = ({ route, navigation }) => {
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
 
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>Vehicle Details</Text>
           </View>
         </View>
 
-        {/* Vehicle Image */}
         <CarImage
           width={width * 0.9}
           height={height * 0.4}
           style={styles.vehicleImage}
         />
 
-        {/* Vehicle Info */}
         <View style={styles.vehicleInfoContainer}>
           <View style={styles.vehicleDetails}>
             <Text style={styles.vehicleName}>{vehicleName}</Text>
@@ -96,25 +111,44 @@ const VehicleDetails = ({ route, navigation }) => {
             <Text style={styles.ownerName}>{ownerName}</Text>
             <View style={styles.wrapper}>
               <View style={styles.verifiedContainer}>
-                <VerifiedBadge
-                  style={styles.verifiedIcon}
-                  accessibilityLabel="Verification icon"
-                />
+                <VerifiedBadge style={styles.verifiedIcon} />
                 <Text style={styles.verifiedText}>Verified</Text>
               </View>
             </View>
           </View>
         </View>
       </View>
-      {/* Action Buttons */}
+
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Text style={styles.deleteButtonText}>Delete</Text>
-        </TouchableOpacity>
         <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
           <Text style={styles.submitButtonText}>Submit</Text>
         </TouchableOpacity>
       </View>
+
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
+
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleModalClose} // Close modal and navigate when "OK" is clicked
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={handleModalClose}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -122,7 +156,7 @@ const VehicleDetails = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000", // Assuming a dark background
+    backgroundColor: "#000",
   },
   content: {
     width: "100%",
@@ -130,9 +164,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
     marginTop: 28,
     width: "100%",
   },
@@ -140,36 +171,30 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 20,
     borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 1)",
     paddingVertical: 12,
     paddingHorizontal: 18,
-    backgroundColor: "transparent",
   },
   backText: {
-    color: "rgba(255, 255, 255, 1)",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "300",
   },
   titleContainer: {
-    flex: 1,
-    justifyContent: "center",
     alignItems: "center",
   },
   title: {
-    color: "rgba(255, 214, 19, 1)",
+    color: "#FFD613",
     fontSize: 18,
     fontWeight: "600",
   },
   vehicleImage: {
     marginTop: 20,
-    width: "100%", // Full width of the container
-    height: height * 0.4, // Fixed height for responsiveness
+    width: "100%",
   },
   vehicleInfoContainer: {
     marginTop: 40,
     width: "100%",
-    flexDirection: "row", // Align side by side
+    flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
@@ -182,7 +207,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   vehicleNumber: {
-    color: "rgba(255, 214, 19, 1)",
+    color: "#FFD613",
     fontSize: 24,
     marginTop: 10,
   },
@@ -193,30 +218,31 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
   },
+  wrapper: {
+    maxWidth: 122,
+  },
+  verifiedContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingVertical: 7,
+  },
+  verifiedIcon: {
+    width: 18,
+  },
+  verifiedText: {
+    fontSize: 10,
+    color: "#00FF19",
+  },
   actionButtons: {
     position: "absolute",
-    flexDirection: "row",
-    justifyContent: "space-between",
     bottom: 10,
     width: "100%",
     paddingHorizontal: 16,
   },
-  deleteButton: {
-    flex: 1,
-    marginRight: 10,
-    backgroundColor: "rgba(255, 0, 0, 0.2)",
-    paddingVertical: 15,
-    borderRadius: 10,
-    alignItems: "center",
-  },
-  deleteButtonText: {
-    color: "red",
-    fontSize: 16,
-    fontWeight: "500",
-  },
   submitButton: {
     flex: 1,
-    backgroundColor: "rgba(255, 214, 19, 1)",
+    backgroundColor: "#FFD613",
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: "center",
@@ -226,29 +252,42 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  wrapper: {
-    display: "flex",
-    maxWidth: 122,
-    flexDirection: "column",
-    alignItems: "stretch",
-  },
-  verifiedContainer: {
-    borderRadius: 10,
-    display: "flex",
-    flexDirection: "row",
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 24,
-    paddingVertical: 7,
-    gap: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
-  verifiedIcon: {
-    width: 18,
-    aspectRatio: 1,
+  // Modal styles
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  verifiedText: {
-    fontSize: 10,
-    color: "rgba(0, 255, 25, 1)",
-    fontWeight: "500",
+  modalContent: {
+    backgroundColor: "#333",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+    width: "80%",
+  },
+  modalText: {
+    color: "white",
+    marginBottom: 20,
+    fontSize: 16,
+  },
+  modalButton: {
+    padding: 10,
+    backgroundColor: "grey",
+    borderRadius: 5,
+  },
+  modalButtonText: {
+    color: "white",
   },
 });
 

@@ -6,7 +6,7 @@ const { width: deviceWidth, height: deviceHeight } = Dimensions.get("window");
 const HelloWorld = ({ navigation }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigation.navigate("OnBoardScreen1");
+      navigation.navigate("LoginScreen");
     }, 3000);
 
     return () => clearTimeout(timer);

@@ -15,6 +15,7 @@ import TrendingSection from "./TrendingSection";
 import OfferCard from "./OfferCard";
 import ExclusiveOffers from "./ExclusiveOffers";
 import BottomNavigationBar from "./BottomNavigationBar";
+// import { useNavigation } from "@react-navigation/native";
 
 const UserHomeScreen = () => {
   const screenWidth = Dimensions.get("window").width;
@@ -93,7 +94,7 @@ const UserHomeScreen = () => {
 
               <TouchableOpacity
                 style={styles.earnButton}
-                onPress={() => navigation.navigate("EarnScreen")}
+                onPress={() => navigation.navigate("ListYourSpaceScreen")}
               >
                 <Text style={styles.earnButtonText}>Earn with us!</Text>
               </TouchableOpacity>
