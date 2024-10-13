@@ -48,3 +48,7 @@ group :development do
 end
 
 gem 'pg'
+
+gem 'ruby-vips'
+
+gem "image_processing", "~> 1.2"
