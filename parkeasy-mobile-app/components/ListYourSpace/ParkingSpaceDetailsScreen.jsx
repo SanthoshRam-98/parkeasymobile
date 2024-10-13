@@ -90,41 +90,58 @@ const ParkingSpaceDetailsScreen = () => {
       // Prepare the form data
       const formData = new FormData();
 
-      // Append other data fields to FormData
-      formData.append("building_name", buildingName);
-      formData.append("address", address);
-      formData.append("two_wheeler_count", twoWheelerCount);
-      formData.append("four_wheeler_count", fourWheelerCount);
+      // Append the required fields from your schema
+      formData.append("parking_space[building_name]", buildingName);
+      formData.append("parking_space[address]", address);
+      formData.append("parking_space[two_wheeler_count]", twoWheelerCount);
+      formData.append("parking_space[four_wheeler_count]", fourWheelerCount);
 
       // Append parking images as files
-      parkingImages.forEach((imageUri, index) => {
+      parkingImages.forEach((imageUri) => {
         const fileName = imageUri.split("/").pop();
         const fileType = fileName.split(".").pop();
 
-        formData.append("parking_images[]", {
+        formData.append(`parking_space[parking_images][]`, {
           uri: imageUri,
           name: fileName,
           type: `image/${fileType}`,
         });
       });
 
-      // Append selected features
-      selectedFeatures.forEach((feature, index) => {
-        formData.append(`selected_features[]`, feature);
-      });
+      // Append selected features as a string (if saving as text or JSON)
+      formData.append(
+        "parking_space[selected_features]",
+        selectedFeatures.join(",")
+      );
 
-      // Append rates
-      formData.append("rates[hourly]", parseFloat(hourlyRate));
-      formData.append("rates[daily]", parseFloat(dayRate));
-      formData.append("rates[weekly]", parseFloat(weekRate));
-      formData.append("rates[monthly]", parseFloat(monthRate));
-      formData.append("rates[six_months]", parseFloat(sixMonthsRate));
-      formData.append("rates[yearly]", parseFloat(yearRate));
+      // Append rates based on your schema
+      formData.append(
+        "parking_space[hourly_rate]",
+        parseFloat(hourlyRate) || 0
+      );
+      formData.append("parking_space[day_rate]", parseFloat(dayRate) || 0);
+      formData.append("parking_space[week_rate]", parseFloat(weekRate) || 0);
+      formData.append("parking_space[month_rate]", parseFloat(monthRate) || 0);
+      formData.append(
+        "parking_space[six_month_rate]",
+        parseFloat(sixMonthsRate) || 0
+      );
+      formData.append("parking_space[year_rate]", parseFloat(yearRate) || 0);
 
-      formData.append("location_name", location.location_name);
-      formData.append("city", location.city);
-      formData.append("latitude", location.coordinates.latitude);
-      formData.append("longitude", location.coordinates.longitude);
+      // Append location details
+      formData.append(
+        "parking_space[location_name]",
+        location.location_name || ""
+      );
+      formData.append("parking_space[city]", location.city || "");
+      formData.append(
+        "parking_space[latitude]",
+        location.coordinates?.latitude || 0
+      );
+      formData.append(
+        "parking_space[longitude]",
+        location.coordinates?.longitude || 0
+      );
 
       // Send POST request to backend with FormData
       const response = await axios.post(

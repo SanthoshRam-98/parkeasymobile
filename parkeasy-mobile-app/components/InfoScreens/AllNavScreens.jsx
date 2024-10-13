@@ -23,6 +23,7 @@ import VehicleDetails from "../AddVehicle/VehicleDetails";
 import ListYourSpaceScreen from "../ListYourSpace/ListYourSpaceScreen";
 import ParkingSpaceDetailsScreen from "../ListYourSpace/ParkingSpaceDetailsScreen";
 import ConfirmationScreen from "../ListYourSpace/ConfirmationScreen";
+import BookScreen0 from "../BookingScreen/BookScreen0";
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
   return (
@@ -64,6 +65,7 @@ const AllNavScreens = () => {
         component={ParkingSpaceDetailsScreen}
       />
       <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} />
+      <Stack.Screen name="BookScreen0" component={BookScreen0} />
       {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );

@@ -57,7 +57,7 @@ function ParkingAvailability() {
                   : styles.unselectedContainer,
               ]}
               onPress={() =>
-                index === 0 ? navigation.navigate("VehicleInputs") : null
+                index === 0 ? navigation.navigate("BookScreen0") : null
               }
             >
               <Ionicons
