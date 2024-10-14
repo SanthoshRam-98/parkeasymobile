@@ -71,4 +71,8 @@ Rails.application.configure do
 
   config.middleware.delete ActionDispatch::DebugExceptions
 
+    # Configure Active Storage URL options
+    config.active_storage.service_urls_expire_in = 1.hour
+    config.active_storage.url_options = { host: '192.168.225.160', port: 3000 }
+    
 end

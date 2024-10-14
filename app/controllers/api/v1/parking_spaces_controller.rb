@@ -1,39 +1,43 @@
-module Api
-  module V1
-    class ParkingSpacesController < ApplicationController
-      def create
-        # Instantiate the parking space object
-        @parking_space = ParkingSpace.new(parking_space_params)
-
-        # Log received parameters for debugging
-        Rails.logger.info "Received parameters: #{params.inspect}"
-
-        # Attach images if any are provided
-        if params[:parking_space][:parking_images]
-          params[:parking_space][:parking_images].each do |image|
-            @parking_space.parking_images.attach(image)
-          end
-        end
-
-        # Save the parking space and respond accordingly
-        if @parking_space.save
-          render json: { message: "Parking space created successfully", parking_space: @parking_space }, status: :created
-        else
-          Rails.logger.info "Errors: #{@parking_space.errors.full_messages}"
-          render json: { errors: @parking_space.errors.full_messages }, status: :unprocessable_entity
-        end
-      end
-      
-      private
-      
-      def parking_space_params
-        params.require(:parking_space).permit(
-          :building_name, :address, :two_wheeler_count, :four_wheeler_count,
-          :hourly_rate, :day_rate, :week_rate, :month_rate, :six_month_rate, :year_rate,
-          :latitude, :longitude, :location_name, :city, :selected_features,
-          parking_images: [] # Ensure this is an array for attachments
-        )
-      end
+class Api::V1::ParkingSpacesController < ApplicationController
+  # GET /api/v1/parking_spaces
+  def index
+    @parking_spaces = ParkingSpace.all
+    if @parking_spaces.empty?
+      render json: { message: 'No parking spaces found' }, status: :not_found
+    else
+      render json: @parking_spaces
     end
+  end
+
+  # POST /api/v1/parking_spaces
+  def create
+    # Check for required fields
+    if parking_space_params[:building_name].blank? || 
+       parking_space_params[:address].blank? || 
+       parking_space_params[:location_name].blank? || 
+       parking_space_params[:city].blank?
+       
+      return render json: { errors: "Building name, address, location name, and city are required." }, status: :unprocessable_entity
+    end
+  
+    parking_space = ParkingSpace.new(parking_space_params)
+    
+    if parking_space.save
+      render json: { message: 'Parking space created successfully', parking_space: parking_space }, status: :created
+    else
+      Rails.logger.error("Parking space creation failed: #{parking_space.errors.full_messages}")
+      render json: { errors: parking_space.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def parking_space_params
+    params.require(:parking_space).permit(
+      :building_name, :address, :two_wheeler_count, :four_wheeler_count, 
+      :hourly_rate, :day_rate, :week_rate, :month_rate, :six_month_rate, 
+      :year_rate, :location_name, :city, selected_features: [],
+      parking_images: [] # Allow multiple images
+    )
   end
 end

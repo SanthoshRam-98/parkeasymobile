@@ -55,6 +55,13 @@ const ListYourSpaceScreen = () => {
           setCity(
             `${district || "Unknown District"}, ${region || "Unknown State"}`
           ); // District and state
+
+          // Log the locationName and city
+          console.log("Location Name:", name || "Unknown Location");
+          console.log(
+            "City:",
+            `${district || "Unknown District"}, ${region || "Unknown State"}`
+          );
         }
       } catch (error) {
         console.error("Error fetching location: ", error);
@@ -68,16 +75,20 @@ const ListYourSpaceScreen = () => {
   }, []);
 
   const handleAddressFetch = () => {
-    if (coordinates) {
+    // Check if coordinates and location name/city are available
+    if (coordinates && locationName && city) {
       navigation.navigate("ParkingSpaceDetailsScreen", {
         location: {
           coordinates,
           locationName,
           city,
         },
-      }); // Pass the coordinates, location name, and city
+      });
     } else {
-      Alert.alert("Error", "Unable to fetch location. Try again later.");
+      Alert.alert(
+        "Error",
+        "Unable to fetch location. Ensure your location is available."
+      );
     }
   };
 

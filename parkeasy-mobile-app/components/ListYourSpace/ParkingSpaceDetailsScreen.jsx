@@ -38,6 +38,7 @@ const ParkingSpaceDetailsScreen = () => {
   ];
   const route = useRoute(); // Use useRoute to access the navigation parameters
   const { location } = route.params; // Destructure the location from params
+  const { coordinates, locationName, city } = location; // Destructure values
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -55,7 +56,6 @@ const ParkingSpaceDetailsScreen = () => {
   const removeImage = (index) => {
     setParkingImages(parkingImages.filter((_, i) => i !== index));
   };
-
   const increaseCounter = (type) => {
     if (type === "two") setTwoWheelerCount(twoWheelerCount + 1);
     if (type === "four") setFourWheelerCount(fourWheelerCount + 1);
@@ -77,98 +77,92 @@ const ParkingSpaceDetailsScreen = () => {
       setSelectedFeatures([...selectedFeatures, featureName]);
     }
   };
-
   const handleSubmit = async () => {
-    if (!buildingName || !address) {
-      Alert.alert("Error", "Building name and address are required.");
+    // Check if mandatory fields are filled
+    const missingFields = [];
+
+    if (!buildingName) {
+      missingFields.push("Building Name");
+    }
+    if (!address) {
+      missingFields.push("Address");
+    }
+    if (!locationName) {
+      // Use locationName instead of location?.name
+      missingFields.push("Location Name");
+    }
+    if (!city) {
+      // Use city instead of location?.city
+      missingFields.push("City");
+    }
+
+    if (missingFields.length > 0) {
+      alert(
+        `Please fill all the required fields: ${missingFields.join(", ")}.`
+      );
       return;
     }
 
-    setLoading(true); // Set loading to true
-
-    try {
-      // Prepare the form data
-      const formData = new FormData();
-
-      // Append the required fields from your schema
-      formData.append("parking_space[building_name]", buildingName);
-      formData.append("parking_space[address]", address);
-      formData.append("parking_space[two_wheeler_count]", twoWheelerCount);
-      formData.append("parking_space[four_wheeler_count]", fourWheelerCount);
-
-      // Append parking images as files
-      parkingImages.forEach((imageUri) => {
-        const fileName = imageUri.split("/").pop();
-        const fileType = fileName.split(".").pop();
-
-        formData.append(`parking_space[parking_images][]`, {
-          uri: imageUri,
-          name: fileName,
-          type: `image/${fileType}`,
-        });
+    const formData = new FormData();
+    formData.append("parking_space[building_name]", buildingName);
+    formData.append("parking_space[address]", address);
+    formData.append("parking_space[two_wheeler_count]", twoWheelerCount);
+    formData.append("parking_space[four_wheeler_count]", fourWheelerCount);
+    formData.append(
+      "parking_space[hourly_rate]",
+      parseFloat(hourlyRate) || null
+    );
+    formData.append("parking_space[day_rate]", parseFloat(dayRate) || null);
+    formData.append("parking_space[week_rate]", parseFloat(weekRate) || null);
+    formData.append("parking_space[month_rate]", parseFloat(monthRate) || null);
+    formData.append(
+      "parking_space[six_month_rate]",
+      parseFloat(sixMonthsRate) || null
+    );
+    formData.append("parking_space[year_rate]", parseFloat(yearRate) || null);
+    formData.append(
+      "parking_space[location_name]",
+      locationName || "Not provided"
+    );
+    formData.append("parking_space[city]", city || "Not provided");
+    if (selectedFeatures.length > 0) {
+      selectedFeatures.forEach((feature) => {
+        formData.append("parking_space[selected_features][]", feature);
       });
+    }
 
-      // Append selected features as a string (if saving as text or JSON)
-      formData.append(
-        "parking_space[selected_features]",
-        selectedFeatures.join(",")
-      );
+    // Append images
+    parkingImages.forEach((image, index) => {
+      formData.append("parking_space[parking_images][]", {
+        uri: image,
+        name: `image_${index}.jpg`, // or any other extension
+        type: "image/jpeg", // change as per the image type
+      });
+    });
 
-      // Append rates based on your schema
-      formData.append(
-        "parking_space[hourly_rate]",
-        parseFloat(hourlyRate) || 0
-      );
-      formData.append("parking_space[day_rate]", parseFloat(dayRate) || 0);
-      formData.append("parking_space[week_rate]", parseFloat(weekRate) || 0);
-      formData.append("parking_space[month_rate]", parseFloat(monthRate) || 0);
-      formData.append(
-        "parking_space[six_month_rate]",
-        parseFloat(sixMonthsRate) || 0
-      );
-      formData.append("parking_space[year_rate]", parseFloat(yearRate) || 0);
-
-      // Append location details
-      formData.append(
-        "parking_space[location_name]",
-        location.location_name || ""
-      );
-      formData.append("parking_space[city]", location.city || "");
-      formData.append(
-        "parking_space[latitude]",
-        location.coordinates?.latitude || 0
-      );
-      formData.append(
-        "parking_space[longitude]",
-        location.coordinates?.longitude || 0
-      );
-
-      // Send POST request to backend with FormData
+    setLoading(true);
+    try {
       const response = await axios.post(
         "http://192.168.225.160:3000/api/v1/parking_spaces",
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
-
       if (response.status === 201) {
-        navigation.navigate("ConfirmationScreen", {
-          // Pass necessary data to confirmation screen
-        });
-      } else {
-        Alert.alert("Error", "Failed to save parking space details");
+        navigation.navigate("ConfirmationScreen");
       }
     } catch (error) {
-      console.error("Error submitting data: ", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
+      console.error(
+        "Error submitting form:",
+        error.response ? error.response.data : error.message
+      );
+      alert(
+        "Error submitting form: " +
+          (error.response?.data?.errors || error.message)
+      );
     } finally {
-      setLoading(false); // Set loading to false
+      setLoading(false);
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -244,7 +238,6 @@ const ParkingSpaceDetailsScreen = () => {
           </View>
         </View>
 
-        {/* Parking Spot Images */}
         <Text style={styles.sectionTitle}>Parking Spot Images</Text>
         <View style={styles.imageContainer}>
           {parkingImages.length > 0 &&
@@ -336,8 +329,14 @@ const ParkingSpaceDetailsScreen = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>Submit</Text>
+        <TouchableOpacity
+          style={[styles.submitButton, loading && styles.buttonLoading]}
+          onPress={handleSubmit}
+          activeOpacity={0.7} // Adds a slight opacity change on press
+        >
+          <Text style={styles.submitButtonText}>
+            {loading ? "Submitting..." : "Submit"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -494,6 +493,7 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     color: "#1a1a1a",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_12_152349) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_14_155441) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -44,25 +44,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_12_152349) do
 
   create_table "parking_spaces", force: :cascade do |t|
     t.string "building_name"
-    t.text "address"
+    t.string "address"
     t.integer "two_wheeler_count"
     t.integer "four_wheeler_count"
-    t.decimal "hourly_rate"
-    t.decimal "day_rate"
-    t.decimal "week_rate"
-    t.decimal "month_rate"
-    t.decimal "six_month_rate"
-    t.decimal "year_rate"
-    t.text "features"
-    t.text "parking_images"
-    t.decimal "latitude"
-    t.decimal "longitude"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "selected_features"
-    t.json "rates"
+    t.decimal "hourly_rate", precision: 8, scale: 2
+    t.decimal "day_rate", precision: 8, scale: 2
+    t.decimal "week_rate", precision: 8, scale: 2
+    t.decimal "month_rate", precision: 8, scale: 2
+    t.decimal "six_month_rate", precision: 8, scale: 2
+    t.decimal "year_rate", precision: 8, scale: 2
     t.string "location_name"
     t.string "city"
+    t.text "selected_features"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "vehicle_details", force: :cascade do |t|
