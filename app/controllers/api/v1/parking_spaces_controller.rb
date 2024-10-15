@@ -1,12 +1,21 @@
 class Api::V1::ParkingSpacesController < ApplicationController
   # GET /api/v1/parking_spaces
   def index
-    @parking_spaces = ParkingSpace.all
-    if @parking_spaces.empty?
-      render json: { message: 'No parking spaces found' }, status: :not_found
-    else
-      render json: @parking_spaces
-    end
+    parking_spaces = ParkingSpace.all
+  
+    render json: parking_spaces.map { |parking_space|
+      parking_space.as_json.merge({
+        parking_images: parking_space.parking_images.map { |image| url_for(image) }
+      })
+    }
+  end
+  
+  def show
+    parking_space = ParkingSpace.find(params[:id])
+  
+    render json: parking_space.as_json.merge({
+      parking_images: parking_space.parking_images.map { |image| url_for(image) }
+    })
   end
 
   # POST /api/v1/parking_spaces

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import * as Location from "expo-location";
-// import { useNavigation } from "@react-navigation/native";
+
 const BookingScreen0 = ({ navigation }) => {
   const mapRef = useRef(null);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -18,7 +18,7 @@ const BookingScreen0 = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [region, setRegion] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
-  // const navigations = useNavigation;
+
   useEffect(() => {
     Animated.timing(scaleValue, {
       toValue: 1,
@@ -37,10 +37,10 @@ const BookingScreen0 = ({ navigation }) => {
       setRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.015, // Adjust the zoom level
+        latitudeDelta: 0.015,
         longitudeDelta: 0.0121,
       });
-      setUserLocation(location.coords); // Store the user's location
+      setUserLocation(location.coords);
       setLoading(false);
     };
 
@@ -49,21 +49,16 @@ const BookingScreen0 = ({ navigation }) => {
 
   const onMapReady = () => {
     if (region) {
-      mapRef.current?.animateToRegion(region, 500); // Optional: animate to user's location
+      mapRef.current?.animateToRegion(region, 500);
     }
   };
+
   const handleSubmit = () => {
     navigation.navigate("BookScreen1");
   };
+
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={styles.backText}>Back</Text>
-      </TouchableOpacity>
-
       <View style={styles.mapContainer}>
         {loading ? (
           <ActivityIndicator
@@ -82,51 +77,61 @@ const BookingScreen0 = ({ navigation }) => {
             onMapReady={onMapReady}
           />
         )}
+
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
       </View>
 
-      <Animated.View
-        style={[
-          styles.optionsContainer,
-          {
-            transform: [{ scale: scaleValue }],
-          },
-        ]}
-      >
-        <TouchableOpacity
+      <View style={styles.cardBox}>
+        <Animated.View
           style={[
-            styles.optionButton,
-            selectedOption === "EV Parking" && styles.selectedOption,
+            styles.optionsContainer,
+            {
+              transform: [{ scale: scaleValue }],
+            },
           ]}
-          onPress={() => setSelectedOption("EV Parking")}
         >
-          <Text style={styles.optionText}>EV Parking</Text>
-          <View
+          <TouchableOpacity
             style={[
-              styles.radioButton,
-              selectedOption === "EV Parking" && styles.selectedRadio,
+              styles.cardContainer,
+              selectedOption === "EV Parking" && styles.selectedOption,
             ]}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.optionButton,
-            selectedOption === "Simple Parking" && styles.selectedOption,
-          ]}
-          onPress={() => setSelectedOption("Simple Parking")}
-        >
-          <Text style={styles.optionText}>Simple Parking</Text>
-          <View
-            style={[
-              styles.radioButton,
-              selectedOption === "Simple Parking" && styles.selectedRadio,
-            ]}
-          />
-        </TouchableOpacity>
-      </Animated.View>
+            onPress={() => setSelectedOption("EV Parking")}
+          >
+            <Text style={styles.cardTitle}>EV Parking</Text>
+            <View
+              style={[
+                styles.radioButton,
+                selectedOption === "EV Parking" && styles.selectedRadio,
+              ]}
+            />
+          </TouchableOpacity>
 
-      <TouchableOpacity style={styles.bookButton} onPress={handleSubmit}>
-        <Text style={styles.bookButtonText}>Book Now</Text>
-      </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              styles.cardContainer,
+              selectedOption === "Simple Parking" && styles.selectedOption,
+            ]}
+            onPress={() => setSelectedOption("Simple Parking")}
+          >
+            <Text style={styles.cardTitle}>Simple Parking</Text>
+            <View
+              style={[
+                styles.radioButton,
+                selectedOption === "Simple Parking" && styles.selectedRadio,
+              ]}
+            />
+          </TouchableOpacity>
+        </Animated.View>
+
+        <TouchableOpacity style={styles.bookButton} onPress={handleSubmit}>
+          <Text style={styles.bookButtonText}>Book Now</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -136,63 +141,75 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
+  mapContainer: {
+    flex: 1.5,
+    position: "relative",
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
   backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 1)",
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 18,
-    margin: 16,
     zIndex: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Back button background for visibility
   },
   backText: {
     color: "white",
     fontSize: 16,
     fontWeight: "300",
   },
-  mapContainer: {
-    flex: 1,
-    marginHorizontal: 16,
-    borderRadius: 10,
-    overflow: "hidden",
-  },
-  map: {
-    flex: 1,
+  cardBox: {
+    // borderTopLeftRadius: 20,
+    // borderTopRightRadius: 20,
+    paddingVertical: 20,
+    backgroundColor: "#000",
+    padding: 8,
+    borderRadius: 20, // Responsive borderRadius for cardBox
+    // marginHorizontal: 16,
+    marginBottom: 16,
   },
   optionsContainer: {
+    marginTop: 12,
     padding: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    borderRadius: 10,
+    backgroundColor: "#000",
+    // borderRadius: 20, // Responsive borderRadius
     elevation: 5,
     shadowColor: "#000",
     shadowOpacity: 0.3,
     shadowOffset: { width: 0, height: 2 },
     shadowRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 16,
   },
-  optionButton: {
+  cardContainer: {
+    borderRadius: 15,
     flexDirection: "row",
-    alignItems: "center",
+    // alignItems: "center",
     padding: 16,
-    borderColor: "#ccc",
+    // paddingTop: 10,
+    marginBottom: 15,
+    // elevation: 2,
+    justifyContent: "space-between",
+    borderColor: "#888",
     borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: "#000",
   },
-  optionText: {
-    flex: 1,
+  cardTitle: {
+    color: "#fff",
     fontSize: 18,
-    color: "white",
+    fontWeight: "bold",
   },
   radioButton: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#000",
-    backgroundColor: "#fff",
+    borderColor: "#fff",
+    backgroundColor: "#000",
   },
   selectedOption: {
     borderColor: "#FFC107",
@@ -206,7 +223,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
-    margin: 16,
+    marginTop: 10,
   },
   bookButtonText: {
     fontSize: 18,
