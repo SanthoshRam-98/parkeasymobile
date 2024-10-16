@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -18,64 +18,93 @@ const ParkingBooking = () => {
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [duration, setDuration] = useState(1);
   const [pricingPlan, setPricingPlan] = useState("Daily");
+  const [twoWheelerCount, setTwoWheelerCount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0); // Added to track total price
+  const [parkingRates, setParkingRates] = useState({}); // State to hold parking rates
+  const [parkingSpace, setParkingSpace] = useState(null); // The selected parking space
+  // Fetch parking space by ID
+  useEffect(() => {
+    const fetchParkingSpace = async () => {
+      try {
+        const response = await fetch(
+          `http://192.168.225.160:3000/api/v1/parking_spaces/id`
+        );
+        const data = await response.json();
+        setParkingSpace(data);
+        updateParkingRates(data); // Update rates for the fetched space
+      } catch (error) {
+        console.error("Error fetching parking space:", error);
+      }
+    };
 
-  const pricingRates = {
-    hourly: 20,
-    daily: 150,
-    monthly: 2999,
-    threeMonths: 7999,
-    sixMonths: 14999,
-    yearly: 24000,
+    if (id) {
+      fetchParkingSpace(); // Fetch data when parkingSpaceId changes
+    }
+  }, [id]);
+  const updateParkingRates = (space) => {
+    setParkingRates({
+      hourly: space.hourly_rate,
+      daily: space.day_rate,
+      weekly: space.week_rate,
+      monthly: space.month_rate,
+      sixMonths: space.six_month_rate,
+      yearly: space.year_rate,
+    });
+    setPricingPlan("Daily"); // Reset pricing plan to default
+    setTotalPrice(space.day_rate); // Set default price to daily rate
   };
+  // Calculate total for Hourly and other plans
 
-  const calculateTotal = () => {
-    switch (pricingPlan) {
-      case "Hourly":
-        return calculateHourlyTotal();
-      case "Daily":
-        return duration * pricingRates.daily;
-      case "Monthly":
-        return pricingRates.monthly; // Fixed price for monthly
-      case "3 Months":
-        return pricingRates.threeMonths; // Fixed price for 3 months
-      case "6 Months":
-        return pricingRates.sixMonths; // Fixed price for 6 months
-      case "Yearly":
-        return pricingRates.yearly; // Fixed price for yearly
-      default:
-        return 0;
+  // Handle toggling between Today and Tomorrow
+  const handleDayChange = (day) => {
+    setSelectedDay(day);
+    if (day === "Today") {
+      setDate(new Date());
+      resetCounterAndPrice();
+    } else if (day === "Tomorrow") {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      setDate(tomorrow);
+      resetCounterAndPrice();
     }
   };
 
-  const calculateHourlyTotal = () => {
-    // Calculate the difference in milliseconds
-    const diffInMs = endTime - startTime;
-    const hours = Math.ceil(diffInMs / (1000 * 60 * 60)); // Convert ms to hours
-    return hours * pricingRates.hourly;
+  const resetCounterAndPrice = () => {
+    setTwoWheelerCount(0);
+    // Calculate total price only if pricingPlan is hourly
+    if (pricingPlan === "Hourly") {
+      setTotalPrice(0); // Reset total price for hourly plan
+    } else {
+      setTotalPrice(calculateTotal(twoWheelerCount)); // Set total for other plans
+    }
   };
 
-  const totalAmount = calculateTotal();
+  // Increase counter and recalculate total price
+  const increaseCounter = () => {
+    const newCount = twoWheelerCount + 1;
+    setTwoWheelerCount(newCount);
+    if (pricingPlan === "Hourly") {
+      const newTotal = calculateTotal(newCount);
+      setTotalPrice(newTotal); // Update total price based on counter
+    }
+  };
+
+  const decreaseCounter = () => {
+    if (twoWheelerCount > 0) {
+      const newCount = twoWheelerCount - 1;
+      setTwoWheelerCount(newCount);
+      if (pricingPlan === "Hourly") {
+        const newTotal = calculateTotal(newCount);
+        setTotalPrice(newTotal); // Update total price based on counter
+      }
+    }
+  };
 
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setDate(selectedDate);
-    }
-  };
-
-  const onStartTimeChange = (event, selectedTime) => {
-    setShowStartTimePicker(false);
-    if (selectedTime) {
-      setStartTime(selectedTime);
-    }
-  };
-
-  const onEndTimeChange = (event, selectedTime) => {
-    setShowEndTimePicker(false);
-    if (selectedTime) {
-      setEndTime(selectedTime);
     }
   };
 
@@ -88,26 +117,89 @@ const ParkingBooking = () => {
     const options = { hour: "2-digit", minute: "2-digit", hour12: true };
     return date.toLocaleTimeString("en-US", options);
   };
-
-  const incrementDuration = () => {
-    setDuration((prevDuration) => prevDuration + 1);
+  const setPricingPlanAndUpdatePrice = (plan) => {
+    setPricingPlan(plan);
+    setTwoWheelerCount(1); // Set the default count to 1
+    // Set total price directly based on the selected plan
+    let total = 1;
+    switch (
+      plan // Change pricingPlan to plan
+    ) {
+      case "Hourly":
+        total = twoWheelerCount * parkingRates.hourly; // Use twoWheelerCount for hourly calculation
+        break;
+      case "Daily":
+        total = parkingRates.daily; // Use fetched daily rate
+        break;
+      case "Weekly":
+        total = parkingRates.weekly; // Added weekly case
+        break;
+      case "Monthly":
+        total = parkingRates.monthly; // Use fetched monthly rate
+        break;
+      case "6 Months":
+        total = parkingRates.sixMonths; // Use fetched six months rate
+        break;
+      case "Yearly":
+        total = parkingRates.yearly; // Use fetched yearly rate
+        break;
+      default:
+        total = 0;
+    }
+    setTotalPrice(total); // Set the total price
   };
 
-  const decrementDuration = () => {
-    setDuration((prevDuration) => Math.max(prevDuration - 1, 1));
+  const calculateTotal = (count) => {
+    if (pricingPlan === "Hourly") {
+      return count * parkingRates.hourly; // Calculate total for hourly plan
+    }
+    // For other plans, totalPrice is directly set in setPricingPlanAndUpdatePrice
+    return totalPrice; // Just return the current total price for non-hourly plans
+  };
+
+  const onStartTimeChange = (event, selectedTime) => {
+    setShowStartTimePicker(false);
+    if (selectedTime) {
+      setStartTime(selectedTime);
+      // When start time is set, you may also want to reset end time if necessary
+      setEndTime(selectedTime); // Uncomment if you want to reset end time to the selected start time
+    }
+  };
+
+  const onEndTimeChange = (event, selectedTime) => {
+    setShowEndTimePicker(false);
+    if (selectedTime) {
+      // Get hours for both start and end times
+      const startHour = startTime.getHours();
+      const endHour = selectedTime.getHours();
+
+      // Prevent setting end time to AM if start time is PM
+      if (startHour >= 12 && endHour < 12) {
+        alert("End time cannot be in the AM if start time is in the PM.");
+        return;
+      }
+
+      setEndTime(selectedTime);
+      // Calculate total price based on the duration between start and end time
+      const hoursDifference = Math.abs(endHour - startHour);
+      const newTotal = calculateTotal(hoursDifference); // Update the total price based on duration
+      setTotalPrice(newTotal);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.title}>RR Parking</Text>
-            <Text style={styles.subtitle}>Vadapalani, Chennai</Text>
-          </View>
+          {parkingSpace ? (
+            <View>
+              <Text style={styles.spaceName}>
+                {parkingSpace.building_name}, {parkingSpace.city}
+              </Text>
+            </View>
+          ) : (
+            <Text>Loading parking space...</Text>
+          )}
         </View>
 
         <View style={styles.mapContainer}>
@@ -138,7 +230,7 @@ const ParkingBooking = () => {
                   styles.dateButton,
                   selectedDay === "Today" && styles.activeButton,
                 ]}
-                onPress={() => setSelectedDay("Today")}
+                onPress={() => handleDayChange("Today")}
               >
                 <Text style={styles.toggleText}>Today</Text>
               </TouchableOpacity>
@@ -147,7 +239,7 @@ const ParkingBooking = () => {
                   styles.dateButton,
                   selectedDay === "Tomorrow" && styles.activeButton,
                 ]}
-                onPress={() => setSelectedDay("Tomorrow")}
+                onPress={() => handleDayChange("Tomorrow")}
               >
                 <Text style={styles.toggleText}>Tomorrow</Text>
               </TouchableOpacity>
@@ -164,48 +256,12 @@ const ParkingBooking = () => {
           )}
         </View>
 
-        {/* Start Time Section */}
-        <View style={styles.timeSection}>
-          <Text style={styles.sectionLabel}>Start Time</Text>
-          <TouchableOpacity
-            style={styles.timeButton}
-            onPress={() => setShowStartTimePicker(true)}
-          >
-            <Text style={styles.timeText}>{formatTime(startTime)}</Text>
-          </TouchableOpacity>
-          {showStartTimePicker && (
-            <DateTimePicker
-              value={startTime}
-              mode="time"
-              display="default"
-              onChange={onStartTimeChange}
-            />
-          )}
-        </View>
-
-        {/* End Time Section */}
-        <View style={styles.timeSection}>
-          <Text style={styles.sectionLabel}>End Time</Text>
-          <TouchableOpacity
-            style={styles.timeButton}
-            onPress={() => setShowEndTimePicker(true)}
-          >
-            <Text style={styles.timeText}>{formatTime(endTime)}</Text>
-          </TouchableOpacity>
-          {showEndTimePicker && (
-            <DateTimePicker
-              value={endTime}
-              mode="time"
-              display="default"
-              onChange={onEndTimeChange}
-            />
-          )}
-        </View>
-
         <View style={styles.pricingPlan}>
           <Text style={styles.sectionLabel}>Pricing & Plan</Text>
+          {/* // Update the TouchableOpacity for pricing plans to ensure the right
+          plan is set */}
           <View style={styles.priceGrid}>
-            {Object.entries(pricingRates).map(([key, value]) => (
+            {Object.entries(parkingRates).map(([key, value]) => (
               <TouchableOpacity
                 key={key}
                 style={[
@@ -215,24 +271,24 @@ const ParkingBooking = () => {
                       ? "Hourly"
                       : key === "daily"
                       ? "Daily"
+                      : key === "weekly" // Added "weekly" instead of "threeMonths"
+                      ? "Weekly"
                       : key === "monthly"
                       ? "Monthly"
-                      : key === "threeMonths"
-                      ? "3 Months"
                       : key === "sixMonths"
                       ? "6 Months"
                       : "Yearly") && styles.activePriceBox,
                 ]}
                 onPress={() =>
-                  setPricingPlan(
+                  setPricingPlanAndUpdatePrice(
                     key === "hourly"
                       ? "Hourly"
                       : key === "daily"
                       ? "Daily"
+                      : key === "weekly" // Added "weekly" instead of "threeMonths"
+                      ? "Weekly"
                       : key === "monthly"
                       ? "Monthly"
-                      : key === "threeMonths"
-                      ? "3 Months"
                       : key === "sixMonths"
                       ? "6 Months"
                       : "Yearly"
@@ -242,50 +298,88 @@ const ParkingBooking = () => {
                 <Text style={styles.priceText}>
                   ₹ {value} /{" "}
                   {key === "hourly"
-                    ? "Hour"
+                    ? "Hourly"
                     : key === "daily"
-                    ? "Day"
+                    ? "Daily"
+                    : key === "weekly" // Added "weekly" instead of "threeMonths"
+                    ? "Weekly"
                     : key === "monthly"
-                    ? "Month"
-                    : key === "threeMonths"
-                    ? "3 Months"
+                    ? "Monthly"
                     : key === "sixMonths"
                     ? "6 Months"
-                    : "Year"}
+                    : "Yearly"}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
         </View>
 
-        {/* Duration Selector is conditionally rendered */}
-        {pricingPlan === "Hourly" || pricingPlan === "Daily" ? (
-          <View style={styles.durationSelector}>
-            <Text style={styles.sectionLabel}>Duration</Text>
-            <View style={styles.durationControl}>
+        {/* Render duration and time selection only for Hourly plan */}
+        {pricingPlan === "Hourly" && selectedDay === "Today" && (
+          <View style={styles.counterSection}>
+            <Text style={styles.sectionLabel}>Duration (in hours)</Text>
+            <View style={styles.counterButtons}>
               <TouchableOpacity
-                onPress={decrementDuration}
-                style={styles.controlButton}
+                onPress={decreaseCounter}
+                style={styles.counterButton}
               >
-                <Text style={styles.controlText}>-</Text>
+                <Ionicons name="remove" size={20} color="#FFF" />
               </TouchableOpacity>
-              <Text style={styles.durationText}>
-                {duration} {pricingPlan === "Hourly" ? "Hour(s)" : "Day(s)"}
-              </Text>
+              <Text style={styles.counterValue}>{twoWheelerCount}</Text>
               <TouchableOpacity
-                onPress={incrementDuration}
-                style={styles.controlButton}
+                onPress={increaseCounter}
+                style={styles.counterButton}
               >
-                <Text style={styles.controlText}>+</Text>
+                <Ionicons name="add" size={20} color="#FFF" />
               </TouchableOpacity>
             </View>
           </View>
-        ) : null}
+        )}
 
-        {/* Book Now Button */}
+        {/* Time division for "Tomorrow" + "Hourly" pricing */}
+        {selectedDay === "Tomorrow" && pricingPlan === "Hourly" && (
+          <>
+            <View style={styles.timeSection}>
+              <Text style={styles.sectionLabel}>Start Time</Text>
+              <TouchableOpacity
+                style={styles.timeButton}
+                onPress={() => setShowStartTimePicker(true)}
+              >
+                <Text style={styles.timeText}>{formatTime(startTime)}</Text>
+              </TouchableOpacity>
+              {showStartTimePicker && (
+                <DateTimePicker
+                  value={startTime}
+                  mode="time"
+                  display="default"
+                  onChange={onStartTimeChange}
+                />
+              )}
+            </View>
+
+            <View style={styles.timeSection}>
+              <Text style={styles.sectionLabel}>End Time</Text>
+              <TouchableOpacity
+                style={styles.timeButton}
+                onPress={() => setShowEndTimePicker(true)}
+              >
+                <Text style={styles.timeText}>{formatTime(endTime)}</Text>
+              </TouchableOpacity>
+              {showEndTimePicker && (
+                <DateTimePicker
+                  value={endTime}
+                  mode="time"
+                  display="default"
+                  onChange={onEndTimeChange}
+                />
+              )}
+            </View>
+          </>
+        )}
+
         <View style={styles.bookNowSection}>
           <View style={styles.priceBox}>
-            <Text style={styles.priceSummary}>₹ {totalAmount}.00</Text>
+            <Text style={styles.priceSummary}>₹ {totalPrice}.00</Text>
           </View>
           <View>
             <TouchableOpacity style={styles.bookButton}>
@@ -463,6 +557,21 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  counterButtons: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#333",
+    padding: 5,
+    borderRadius: 8,
+  },
+  counterButton: {
+    paddingHorizontal: 10,
+  },
+  counterValue: {
+    color: "#FFF",
+    fontSize: 18,
+    paddingHorizontal: 10,
   },
 });
 

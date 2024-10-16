@@ -1,26 +1,38 @@
 class Api::V1::ParkingSpacesController < ApplicationController
   # GET /api/v1/parking_spaces
+  # GET /api/v1/parking_spaces
   def index
-    parking_spaces = ParkingSpace.all
-  
-    render json: parking_spaces.map { |parking_space|
-      parking_space.as_json.merge({
-        parking_images: parking_space.parking_images.map { |image| url_for(image) }
-      })
-    }
+    begin
+      @parking_spaces = ParkingSpace.all
+
+      # Build a JSON response including URLs for attached images
+      parking_spaces_with_images = @parking_spaces.map do |parking_space|
+        parking_space.as_json.merge({
+          parking_images: parking_space.parking_images.map { |image| url_for(image) }
+        })
+      end
+
+      render json: parking_spaces_with_images
+    rescue => e
+      Rails.logger.error("Error fetching parking spaces: #{e.message}")
+      render json: { error: 'Error fetching parking spaces' }, status: :internal_server_error
+    end
   end
   
   def show
-    parking_space = ParkingSpace.find(params[:id])
-  
-    render json: parking_space.as_json.merge({
-      parking_images: parking_space.parking_images.map { |image| url_for(image) }
-    })
+    begin
+      parking_space = ParkingSpace.find(params[:id])
+      render json: parking_space.as_json.merge({
+        parking_images: parking_space.parking_images.map { |image| url_for(image) }
+      })
+    rescue => e
+      Rails.logger.error("Error fetching parking space: #{e.message}")
+      render json: { error: 'Error fetching parking space' }, status: :internal_server_error
+    end
   end
 
   # POST /api/v1/parking_spaces
   def create
-    # Check for required fields
     if parking_space_params[:building_name].blank? || 
        parking_space_params[:address].blank? || 
        parking_space_params[:location_name].blank? || 
@@ -28,7 +40,7 @@ class Api::V1::ParkingSpacesController < ApplicationController
        
       return render json: { errors: "Building name, address, location name, and city are required." }, status: :unprocessable_entity
     end
-  
+
     parking_space = ParkingSpace.new(parking_space_params)
     
     if parking_space.save
