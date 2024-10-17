@@ -9,8 +9,9 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-
-const ParkingBooking = () => {
+import { useRoute } from "@react-navigation/native"; // If using React Navigation
+import MapView from "react-native-maps"; // Import MapView
+const BookScreen2 = ({ navigation }) => {
   const [selectedDay, setSelectedDay] = useState("Today");
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -23,25 +24,30 @@ const ParkingBooking = () => {
   const [totalPrice, setTotalPrice] = useState(0); // Added to track total price
   const [parkingRates, setParkingRates] = useState({}); // State to hold parking rates
   const [parkingSpace, setParkingSpace] = useState(null); // The selected parking space
+  const route = useRoute();
+  const { parkingSpot } = route.params; // Receive parkingSpot passed from BookingScreen
+
+  // Now you can access the parking spot data, like the id
+  const { id, building_name, city, hourly_rate, parking_images } = parkingSpot;
+  // Fetch parking space by ID
   // Fetch parking space by ID
   useEffect(() => {
-    const fetchParkingSpace = async () => {
-      try {
-        const response = await fetch(
-          `http://192.168.225.160:3000/api/v1/parking_spaces/id`
-        );
-        const data = await response.json();
-        setParkingSpace(data);
-        updateParkingRates(data); // Update rates for the fetched space
-      } catch (error) {
-        console.error("Error fetching parking space:", error);
-      }
-    };
-
-    if (id) {
-      fetchParkingSpace(); // Fetch data when parkingSpaceId changes
+    if (parkingSpot.id) {
+      fetch(
+        `http://192.168.225.160:3000/api/v1/parking_spaces/${parkingSpot.id}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Fetched parking space details:", data);
+          setParkingSpace(data); // Make sure to set the data here
+          updateParkingRates(data); // Initialize parking rates after fetch
+        })
+        .catch((error) => {
+          console.error("Error fetching parking space:", error);
+        });
     }
-  }, [id]);
+  }, [parkingSpot.id]);
+
   const updateParkingRates = (space) => {
     setParkingRates({
       hourly: space.hourly_rate,
@@ -52,7 +58,10 @@ const ParkingBooking = () => {
       yearly: space.year_rate,
     });
     setPricingPlan("Daily"); // Reset pricing plan to default
-    setTotalPrice(space.day_rate); // Set default price to daily rate
+
+    setTotalPrice(parseFloat(space.day_rate)); // Set default price as number
+
+    setTwoWheelerCount(1); // Ensure counter starts from 1 after fetching rates
   };
   // Calculate total for Hourly and other plans
 
@@ -189,85 +198,129 @@ const ParkingBooking = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          {parkingSpace ? (
-            <View>
+      {/* <ScrollView contentContainerStyle={styles.container}> */}
+      <View style={styles.mapContainer}>
+        <MapView
+          style={styles.map}
+          initialRegion={{
+            latitude: 37.78825,
+            longitude: -122.4324,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          }}
+        />
+      </View>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.backText}>Back</Text>
+      </TouchableOpacity>
+
+      <View style={styles.functionalityContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            {parkingSpace ? (
               <Text style={styles.spaceName}>
                 {parkingSpace.building_name}, {parkingSpace.city}
               </Text>
-            </View>
-          ) : (
-            <Text>Loading parking space...</Text>
-          )}
-        </View>
-
-        <View style={styles.mapContainer}>
-          <Text style={styles.mapPlaceholder}>Map Placeholder</Text>
-        </View>
-
-        <View style={styles.dateSection}>
-          <Text style={styles.sectionLabel}>Date of booking</Text>
-          <View style={styles.datePicker}>
-            <View style={styles.calendarDiv}>
-              <TouchableOpacity
-                style={styles.calendarIconContainer}
-                onPress={() => setShowDatePicker(true)}
-              >
-                <Ionicons
-                  name="calendar"
-                  size={28}
-                  color="#FFD700"
-                  style={styles.calendarIcon}
-                />
-              </TouchableOpacity>
-              <Text style={styles.dateText}>{formatDate(date)}</Text>
-            </View>
-
-            <View style={styles.dateToggle}>
-              <TouchableOpacity
-                style={[
-                  styles.dateButton,
-                  selectedDay === "Today" && styles.activeButton,
-                ]}
-                onPress={() => handleDayChange("Today")}
-              >
-                <Text style={styles.toggleText}>Today</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.dateButton,
-                  selectedDay === "Tomorrow" && styles.activeButton,
-                ]}
-                onPress={() => handleDayChange("Tomorrow")}
-              >
-                <Text style={styles.toggleText}>Tomorrow</Text>
-              </TouchableOpacity>
-            </View>
+            ) : (
+              <Text>Loading parking space...</Text>
+            )}
           </View>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={onDateChange}
-            />
-          )}
-        </View>
+          <View style={styles.dateSection}>
+            <Text style={styles.sectionLabel}>Date of booking</Text>
+            <View style={styles.datePicker}>
+              <View style={styles.calendarDiv}>
+                <TouchableOpacity
+                  style={styles.calendarIconContainer}
+                  onPress={() => setShowDatePicker(true)}
+                >
+                  <Ionicons
+                    name="calendar"
+                    size={28}
+                    color="#FFD700"
+                    style={styles.calendarIcon}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.dateText}>{formatDate(date)}</Text>
+              </View>
 
-        <View style={styles.pricingPlan}>
-          <Text style={styles.sectionLabel}>Pricing & Plan</Text>
-          {/* // Update the TouchableOpacity for pricing plans to ensure the right
+              <View style={styles.dateToggle}>
+                <TouchableOpacity
+                  style={[
+                    styles.dateButton,
+                    selectedDay === "Today" && styles.activeButton,
+                  ]}
+                  onPress={() => handleDayChange("Today")}
+                >
+                  <Text style={styles.toggleText}>Today</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.dateButton,
+                    selectedDay === "Tomorrow" && styles.activeButton,
+                  ]}
+                  onPress={() => handleDayChange("Tomorrow")}
+                >
+                  <Text style={styles.toggleText}>Tomorrow</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onDateChange}
+              />
+            )}
+          </View>
+          <View style={styles.horizontalLine} />
+          <View style={styles.pricingPlan}>
+            <Text style={styles.sectionLabel}>Pricing & Plan</Text>
+            {/* // Update the TouchableOpacity for pricing plans to ensure the right
           plan is set */}
-          <View style={styles.priceGrid}>
-            {Object.entries(parkingRates).map(([key, value]) => (
-              <TouchableOpacity
-                key={key}
-                style={[
-                  styles.priceBox,
-                  pricingPlan ===
-                    (key === "hourly"
+            <View style={styles.priceGrid}>
+              {Object.entries(parkingRates).map(([key, value]) => (
+                <TouchableOpacity
+                  key={key}
+                  style={[
+                    styles.priceBox,
+                    pricingPlan ===
+                      (key === "hourly"
+                        ? "Hourly"
+                        : key === "daily"
+                        ? "Daily"
+                        : key === "weekly" // Added "weekly" instead of "threeMonths"
+                        ? "Weekly"
+                        : key === "monthly"
+                        ? "Monthly"
+                        : key === "sixMonths"
+                        ? "6 Months"
+                        : "Yearly") && styles.activePriceBox,
+                  ]}
+                  onPress={() =>
+                    setPricingPlanAndUpdatePrice(
+                      key === "hourly"
+                        ? "Hourly"
+                        : key === "daily"
+                        ? "Daily"
+                        : key === "weekly" // Added "weekly" instead of "threeMonths"
+                        ? "Weekly"
+                        : key === "monthly"
+                        ? "Monthly"
+                        : key === "sixMonths"
+                        ? "6 Months"
+                        : "Yearly"
+                    )
+                  }
+                >
+                  <Text style={styles.priceText}>
+                    ₹ {value} /{" "}
+                    {key === "hourly"
                       ? "Hourly"
                       : key === "daily"
                       ? "Daily"
@@ -277,121 +330,98 @@ const ParkingBooking = () => {
                       ? "Monthly"
                       : key === "sixMonths"
                       ? "6 Months"
-                      : "Yearly") && styles.activePriceBox,
-                ]}
-                onPress={() =>
-                  setPricingPlanAndUpdatePrice(
-                    key === "hourly"
-                      ? "Hourly"
-                      : key === "daily"
-                      ? "Daily"
-                      : key === "weekly" // Added "weekly" instead of "threeMonths"
-                      ? "Weekly"
-                      : key === "monthly"
-                      ? "Monthly"
-                      : key === "sixMonths"
-                      ? "6 Months"
-                      : "Yearly"
-                  )
-                }
-              >
-                <Text style={styles.priceText}>
-                  ₹ {value} /{" "}
-                  {key === "hourly"
-                    ? "Hourly"
-                    : key === "daily"
-                    ? "Daily"
-                    : key === "weekly" // Added "weekly" instead of "threeMonths"
-                    ? "Weekly"
-                    : key === "monthly"
-                    ? "Monthly"
-                    : key === "sixMonths"
-                    ? "6 Months"
-                    : "Yearly"}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Render duration and time selection only for Hourly plan */}
-        {pricingPlan === "Hourly" && selectedDay === "Today" && (
-          <View style={styles.counterSection}>
-            <Text style={styles.sectionLabel}>Duration (in hours)</Text>
-            <View style={styles.counterButtons}>
-              <TouchableOpacity
-                onPress={decreaseCounter}
-                style={styles.counterButton}
-              >
-                <Ionicons name="remove" size={20} color="#FFF" />
-              </TouchableOpacity>
-              <Text style={styles.counterValue}>{twoWheelerCount}</Text>
-              <TouchableOpacity
-                onPress={increaseCounter}
-                style={styles.counterButton}
-              >
-                <Ionicons name="add" size={20} color="#FFF" />
-              </TouchableOpacity>
+                      : "Yearly"}
+                  </Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
-        )}
 
-        {/* Time division for "Tomorrow" + "Hourly" pricing */}
-        {selectedDay === "Tomorrow" && pricingPlan === "Hourly" && (
-          <>
-            <View style={styles.timeSection}>
-              <Text style={styles.sectionLabel}>Start Time</Text>
-              <TouchableOpacity
-                style={styles.timeButton}
-                onPress={() => setShowStartTimePicker(true)}
-              >
-                <Text style={styles.timeText}>{formatTime(startTime)}</Text>
-              </TouchableOpacity>
-              {showStartTimePicker && (
-                <DateTimePicker
-                  value={startTime}
-                  mode="time"
-                  display="default"
-                  onChange={onStartTimeChange}
-                />
-              )}
+          {/* Render duration and time selection only for Hourly plan */}
+          {pricingPlan === "Hourly" && selectedDay === "Today" && (
+            <View style={styles.counterSection}>
+              <Text style={styles.sectionLabel}>Duration (in hours)</Text>
+              <View style={styles.counterButtons}>
+                <TouchableOpacity
+                  onPress={decreaseCounter}
+                  style={styles.counterButton}
+                >
+                  <Ionicons name="remove" size={20} color="#FFF" />
+                </TouchableOpacity>
+                <Text style={styles.counterValue}>{twoWheelerCount}</Text>
+                <TouchableOpacity
+                  onPress={increaseCounter}
+                  style={styles.counterButton}
+                >
+                  <Ionicons name="add" size={20} color="#FFF" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {/* Time division for "Tomorrow" + "Hourly" pricing */}
+          {selectedDay === "Tomorrow" && pricingPlan === "Hourly" && (
+            <>
+              <View style={styles.timeSection}>
+                <Text style={styles.sectionLabel}>Start Time</Text>
+                <TouchableOpacity
+                  style={styles.timeButton}
+                  onPress={() => setShowStartTimePicker(true)}
+                >
+                  <Text style={styles.timeText}>{formatTime(startTime)}</Text>
+                </TouchableOpacity>
+                {showStartTimePicker && (
+                  <DateTimePicker
+                    value={startTime}
+                    mode="time"
+                    display="default"
+                    onChange={onStartTimeChange}
+                  />
+                )}
+              </View>
+
+              <View style={styles.timeSection}>
+                <Text style={styles.sectionLabel}>End Time</Text>
+                <TouchableOpacity
+                  style={styles.timeButton}
+                  onPress={() => setShowEndTimePicker(true)}
+                >
+                  <Text style={styles.timeText}>{formatTime(endTime)}</Text>
+                </TouchableOpacity>
+                {showEndTimePicker && (
+                  <DateTimePicker
+                    value={endTime}
+                    mode="time"
+                    display="default"
+                    onChange={onEndTimeChange}
+                  />
+                )}
+              </View>
+            </>
+          )}
+          <View style={styles.horizontalLine} />
+          <View style={styles.bookNowSection}>
+            <View style={styles.priceBox}>
+              <Text style={styles.priceSummary}>₹ {totalPrice}</Text>
             </View>
 
-            <View style={styles.timeSection}>
-              <Text style={styles.sectionLabel}>End Time</Text>
-              <TouchableOpacity
-                style={styles.timeButton}
-                onPress={() => setShowEndTimePicker(true)}
-              >
-                <Text style={styles.timeText}>{formatTime(endTime)}</Text>
-              </TouchableOpacity>
-              {showEndTimePicker && (
-                <DateTimePicker
-                  value={endTime}
-                  mode="time"
-                  display="default"
-                  onChange={onEndTimeChange}
-                />
-              )}
-            </View>
-          </>
-        )}
-
-        <View style={styles.bookNowSection}>
-          <View style={styles.priceBox}>
-            <Text style={styles.priceSummary}>₹ {totalPrice}.00</Text>
-          </View>
-          <View>
             <TouchableOpacity style={styles.bookButton}>
               <Text style={styles.bookButtonText}>Book Now</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
+      {/* </ScrollView> */}
     </SafeAreaView>
   );
 };
-
+const commonButtonStyle = {
+  width: "48%", // Two columns, 48% width to allow for margins
+  padding: 15,
+  marginVertical: 5,
+  borderRadius: 8,
+  alignItems: "center",
+};
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -399,15 +429,48 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    padding: 20,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 15,
   },
+  spaceName: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#FFD700",
+  },
+  mapContainer: {
+    flex: 1.5,
+    position: "relative",
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  horizontalLine: {
+    height: 1, // Height of the line
+    backgroundColor: "#ddd", // Light gray color for a mild appearance
+    marginVertical: 10, // Optional: space around the line
+  },
+  functionalityContainer: {
+    flex: 1,
+    padding: 20,
+  },
+
   backButton: {
-    marginRight: 10,
+    position: "absolute",
+    top: 50,
+    left: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 1)",
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    zIndex: 10,
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Back button background for visibility
+  },
+  backText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "300",
   },
   title: {
     color: "#FFD700",
@@ -418,13 +481,7 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontSize: 14,
   },
-  mapContainer: {
-    backgroundColor: "#333",
-    height: 150,
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
+
   mapPlaceholder: {
     color: "#FFF",
   },
@@ -495,22 +552,14 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     justifyContent: "space-between",
   },
-  priceBox: {
-    width: "48%", // Two columns, 48% width to allow for margins
-    padding: 15,
-    backgroundColor: "#333",
-    marginVertical: 5,
-    borderRadius: 8,
-    alignItems: "center",
-  },
   activePriceBox: {
     backgroundColor: "#FFD700",
-    // color: "black",
+    color: "black",
     // fontSize: 16,
     // backgroundColor: "red",
   },
   priceText: {
-    color: "#FFD700",
+    color: "#FFF",
     fontSize: 16,
   },
   durationSelector: {
@@ -546,24 +595,34 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  priceBox: {
+    ...commonButtonStyle, // Use the common styles
+    backgroundColor: "#333",
+  },
   bookButton: {
-    backgroundColor: "#FFD700",
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    alignItems: "center",
+    ...commonButtonStyle, // Use the common styles
+    backgroundColor: "#FFD700", // Different background color
+    flexDirection: "column",
   },
   bookButtonText: {
-    color: "#000",
+    color: "#000", // Different text color
     fontSize: 16,
     fontWeight: "bold",
   },
+  counterSection: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
   counterButtons: {
     flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#333",
-    padding: 5,
+    width: "48%", // Two columns, 48% width to allow for margins
+    padding: 15,
+    backgroundColor: "#333",
     borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
   },
   counterButton: {
     paddingHorizontal: 10,
@@ -575,4 +634,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ParkingBooking;
+export default BookScreen2;

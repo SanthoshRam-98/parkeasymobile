@@ -10,8 +10,9 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps"; // Use Marker if you want
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import * as Location from "expo-location";
@@ -27,9 +28,9 @@ const BookingScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cardsVisible] = useState(new Animated.Value(300));
   const [parkingSpaces, setParkingSpaces] = useState([]);
+  const [filteredParkingSpaces, setFilteredParkingSpaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
-  const [region, setRegion] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
 
   useEffect(() => {
@@ -44,18 +45,20 @@ const BookingScreen = ({ navigation }) => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         alert("Permission to access location was denied");
+        setLoading(false); // Stop loading even if permission denied
         return;
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setRegion({
+      console.log("User location fetched:", location.coords);
+      setUserLocation(location.coords); // Save user's location
+      setMapRegion({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.015,
-        longitudeDelta: 0.0121,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
       });
-      setUserLocation(location.coords);
-      setLoading(false);
+      setLoading(false); // Stop loading when location is set
     };
 
     fetchUserLocation();
@@ -63,66 +66,88 @@ const BookingScreen = ({ navigation }) => {
 
   useEffect(() => {
     // Fetch parking spaces data
-    axios
-      .get("http://192.168.225.160:3000/api/v1/parking_spaces")
-      .then((response) => {
+    const fetchParkingSpaces = async () => {
+      try {
+        const response = await axios.get(
+          "http://192.168.225.160:3000/api/v1/parking_spaces"
+        );
+        console.log("Parking spaces fetched:", response.data);
         setParkingSpaces(response.data);
-      })
-      .catch((error) => {
+        setFilteredParkingSpaces(response.data); // Initially, set the filtered spaces as the full list
+      } catch (error) {
         console.error("Error fetching parking spaces:", error);
-      });
+        Alert.alert("Error", "Failed to fetch parking spaces.");
+      }
+    };
+
+    fetchParkingSpaces();
   }, []);
 
-  const handleSearch = async () => {
-    if (searchQuery.trim()) {
-      setSearchLoading(true); // Show loading indicator
-      try {
-        const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${searchQuery}&key=YOUR_API_KEY`; // Replace with your Google API key
-        const response = await axios.get(geoUrl);
+  const handleSearch = () => {
+    console.log("handleSearch called");
+    setSearchLoading(true); // Start loading animation
 
-        if (response.data.results.length === 0) {
-          Alert.alert(
-            "Location not found",
-            "Please try searching for another location."
-          );
-          return;
-        }
+    setTimeout(() => {
+      const query = searchQuery.trim().toLowerCase();
+      console.log("Search query:", query);
 
-        const { lat, lng } = response.data.results[0].geometry.location;
-
-        // Log search details
-        console.log("Searched Place Details: ", response.data.results[0]);
-
-        setMapRegion({
-          latitude: lat,
-          longitude: lng,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        });
-
-        // Smoothly navigate to the searched location
-        mapRef.current?.animateToRegion(
-          {
-            latitude: lat,
-            longitude: lng,
-            latitudeDelta: 0.05,
-            longitudeDelta: 0.05,
-          },
-          500
-        );
-      } catch (error) {
-        console.error("Error fetching location:", error);
-        Alert.alert("Error", "Failed to search for location.");
-      } finally {
-        setSearchLoading(false); // Hide loading indicator
+      if (!query) {
+        setFilteredParkingSpaces(parkingSpaces); // Reset to full list when search query is empty
+        setSearchLoading(false); // Stop loading
+        return;
       }
-    }
+
+      // Filter parking spaces based on building name, city, or location name
+      const filteredSpaces = parkingSpaces.filter((space) => {
+        const buildingName = space.building_name
+          ? space.building_name.toLowerCase()
+          : "";
+        const city = space.city ? space.city.toLowerCase() : "";
+        const locationName = space.location_name
+          ? space.location_name.toLowerCase()
+          : "";
+
+        return (
+          buildingName.includes(query) ||
+          city.includes(query) ||
+          locationName.includes(query)
+        );
+      });
+
+      setFilteredParkingSpaces(filteredSpaces); // Update filtered spaces
+      setSearchLoading(false); // Stop loading
+    }, 2000); // Simulate a 2-second loading delay
+  };
+
+  const handleSearchChange = (text) => {
+    setSearchQuery(text); // Update the search query as user types
+
+    const query = text.trim().toLowerCase();
+
+    // Dynamically filter parking spaces as the user types
+    const filteredSpaces = parkingSpaces.filter((space) => {
+      const buildingName = space.building_name
+        ? space.building_name.toLowerCase()
+        : "";
+      const city = space.city ? space.city.toLowerCase() : "";
+      const locationName = space.location_name
+        ? space.location_name.toLowerCase()
+        : "";
+
+      return (
+        buildingName.includes(query) ||
+        city.includes(query) ||
+        locationName.includes(query)
+      );
+    });
+
+    setFilteredParkingSpaces(filteredSpaces); // Update the list as user types
   };
 
   const renderParkingSpot = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("BookScreen2", { parkingSpot: item })} // Pass the selected parking spot data
+      onPress={() => navigation.navigate("BookScreen2", { parkingSpot: item })}
     >
       {item.parking_images && item.parking_images.length > 0 && (
         <Image
@@ -153,6 +178,7 @@ const BookingScreen = ({ navigation }) => {
       </View>
     </TouchableOpacity>
   );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.mapContainer}>
@@ -168,10 +194,9 @@ const BookingScreen = ({ navigation }) => {
             provider={PROVIDER_GOOGLE}
             showsUserLocation={true}
             loadingEnabled={true}
-            initialRegion={region}
             style={styles.map}
-            region={mapRegion} // Control the map region with state
-          ></MapView>
+            region={mapRegion}
+          />
         )}
 
         <TouchableOpacity
@@ -181,28 +206,31 @@ const BookingScreen = ({ navigation }) => {
           <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
       </View>
-      {/* Search and Card Section */}
+
       <View style={styles.searchCardContainer}>
-        {/* Search Bar */}
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#fff" />
           <TextInput
-            placeholder="Search"
-            placeholderTextColor="#888"
             style={styles.searchInput}
+            placeholder="Search parking spaces"
+            placeholderTextColor="rgba(140, 140, 140, 1)"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearchChange} // Dynamically update results as user types
           />
-          {searchLoading ? (
-            <ActivityIndicator size="small" color="#FFC107" />
-          ) : (
-            <TouchableOpacity onPress={handleSearch}>
-              <Ionicons name="mic" size={20} color="#fff" />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.searchButton}
+            onPress={handleSearch}
+            activeOpacity={0.7}
+          >
+            {searchLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : searchQuery.length > 0 ? ( // Show tick when query exists
+              <Ionicons name="checkmark" size={24} color="#fff" />
+            ) : (
+              <Ionicons name="search" size={24} color="#fff" /> // Default lens icon
+            )}
+          </TouchableOpacity>
         </View>
 
-        {/* Cards Container */}
         <Animated.View
           style={[
             styles.cardsContainer,
@@ -210,9 +238,14 @@ const BookingScreen = ({ navigation }) => {
           ]}
         >
           <FlatList
-            data={parkingSpaces}
+            data={filteredParkingSpaces}
             renderItem={renderParkingSpot}
             keyExtractor={(item) => item.id.toString()}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>No parking spaces found.</Text>
+              </View>
+            }
           />
         </Animated.View>
       </View>
@@ -232,6 +265,10 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  calloutText: {
+    fontWeight: "bold",
+    color: "#FFC107",
+  },
   backButton: {
     position: "absolute",
     top: 50,
@@ -242,7 +279,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 18,
     zIndex: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // Back button background for visibility
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
   },
   backText: {
     color: "white",
@@ -268,7 +305,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    color: "#fff",
+    color: "white",
     marginHorizontal: 10,
   },
   cardsContainer: {
@@ -299,6 +336,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
   },
+  cardAlign: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "flex-start",
+  },
   cardTitle: {
     color: "#fff",
     fontSize: 16,
@@ -310,6 +352,7 @@ const styles = StyleSheet.create({
   },
   rateText: {
     color: "#FFC107",
+    fontWeight: "bold",
   },
   cardAddress: {
     color: "#888",
@@ -331,9 +374,14 @@ const styles = StyleSheet.create({
     left: "50%",
     transform: [{ translateX: -50 }, { translateY: -50 }],
   },
-  rateText: {
-    color: "#FFC107",
-    fontWeight: "bold",
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  emptyText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });
 

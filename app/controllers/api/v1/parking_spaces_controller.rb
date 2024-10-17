@@ -20,15 +20,18 @@ class Api::V1::ParkingSpacesController < ApplicationController
   end
   
   def show
-    begin
-      parking_space = ParkingSpace.find(params[:id])
-      render json: parking_space.as_json.merge({
-        parking_images: parking_space.parking_images.map { |image| url_for(image) }
-      })
-    rescue => e
-      Rails.logger.error("Error fetching parking space: #{e.message}")
-      render json: { error: 'Error fetching parking space' }, status: :internal_server_error
-    end
+    @parking_space = ParkingSpace.find(params[:id])
+    render json: {
+      id: @parking_space.id,
+      building_name: @parking_space.building_name,
+      city: @parking_space.city,
+      hourly_rate: @parking_space.hourly_rate,
+      day_rate: @parking_space.day_rate,
+      week_rate: @parking_space.week_rate,
+      month_rate: @parking_space.month_rate,
+      six_month_rate: @parking_space.six_month_rate,
+      year_rate: @parking_space.year_rate
+    }
   end
 
   # POST /api/v1/parking_spaces
