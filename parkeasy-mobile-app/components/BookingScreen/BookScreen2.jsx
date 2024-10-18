@@ -11,6 +11,8 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRoute } from "@react-navigation/native"; // If using React Navigation
 import MapView from "react-native-maps"; // Import MapView
+import * as Location from "expo-location"; // For getting user location// For getting user location
+import { getDistance } from "geolib"; // Import geolib to calculate distance
 const BookScreen2 = ({ navigation }) => {
   const [selectedDay, setSelectedDay] = useState("Today");
   const [date, setDate] = useState(new Date());
@@ -24,13 +26,45 @@ const BookScreen2 = ({ navigation }) => {
   const [totalPrice, setTotalPrice] = useState(0); // Added to track total price
   const [parkingRates, setParkingRates] = useState({}); // State to hold parking rates
   const [parkingSpace, setParkingSpace] = useState(null); // The selected parking space
+  const [defaultLocation] = useState({
+    latitude: 9.939093,
+    longitude: 78.121719,
+  }); // Coimbatore coordinates
+  const [distance, setDistance] = useState(0);
   const route = useRoute();
   const { parkingSpot } = route.params; // Receive parkingSpot passed from BookingScreen
-
+  const [userLocation, setUserLocation] = useState(null); // Initialize userLocation as null
   // Now you can access the parking spot data, like the id
   const { id, building_name, city, hourly_rate, parking_images } = parkingSpot;
   // Fetch parking space by ID
   // Fetch parking space by ID
+
+  // Fetch user location
+  useEffect(() => {
+    (async () => {
+      // Request permission to access location
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Permission to access location was denied");
+        return;
+      }
+
+      // Get user's current location
+      let location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+      setUserLocation({ latitude, longitude });
+
+      // Calculate distance from default location
+      if (defaultLocation) {
+        const distanceInMeters = getDistance(
+          { latitude, longitude },
+          defaultLocation
+        );
+        setDistance(distanceInMeters); // Distance in meters
+      }
+    })();
+  }, []);
+
   useEffect(() => {
     if (parkingSpot.id) {
       fetch(
@@ -203,13 +237,14 @@ const BookScreen2 = ({ navigation }) => {
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: 37.78825,
-            longitude: -122.4324,
+            latitude: defaultLocation.latitude,
+            longitude: defaultLocation.longitude,
             latitudeDelta: 0.0922,
             longitudeDelta: 0.0421,
           }}
         />
       </View>
+
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}
@@ -228,7 +263,14 @@ const BookScreen2 = ({ navigation }) => {
               <Text>Loading parking space...</Text>
             )}
           </View>
-
+          {/* Display Distance */}
+          {userLocation && (
+            <View style={styles.distanceContainer}>
+              <Text style={styles.distanceText}>
+                Distance from your location: {(distance / 1000).toFixed(2)} km
+              </Text>
+            </View>
+          )}
           <View style={styles.dateSection}>
             <Text style={styles.sectionLabel}>Date of booking</Text>
             <View style={styles.datePicker}>
@@ -444,6 +486,16 @@ const styles = StyleSheet.create({
   },
   map: {
     ...StyleSheet.absoluteFillObject,
+  },
+  distanceContainer: {
+    padding: 10,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 5,
+    margin: 10,
+  },
+  distanceText: {
+    fontSize: 16,
+    color: "#333",
   },
   horizontalLine: {
     height: 1, // Height of the line

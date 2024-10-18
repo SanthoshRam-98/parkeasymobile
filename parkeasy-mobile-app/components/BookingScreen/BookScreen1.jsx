@@ -12,11 +12,10 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import * as Location from "expo-location";
-
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 const BookingScreen = ({ navigation }) => {
   const [mapRegion, setMapRegion] = useState({
     latitude: 13.0827,
@@ -147,7 +146,12 @@ const BookingScreen = ({ navigation }) => {
   const renderParkingSpot = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
-      onPress={() => navigation.navigate("BookScreen2", { parkingSpot: item })}
+      onPress={() =>
+        navigation.navigate("BookScreen2", {
+          parkingSpot: item,
+          userLocation: userLocation, // Use userLocation directly
+        })
+      }
     >
       {item.parking_images && item.parking_images.length > 0 && (
         <Image
@@ -178,6 +182,14 @@ const BookingScreen = ({ navigation }) => {
       </View>
     </TouchableOpacity>
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>

@@ -85,7 +85,7 @@ const UserHomeScreen = () => {
             <View style={[styles.buttonsContainer]}>
               <TouchableOpacity
                 style={styles.addVehicleContainer}
-                onPress={() => navigation.navigate("AddVehicleScreen")}
+                onPress={() => navigation.navigate("VehicleInputs")}
               >
                 <Ionicons name="add-circle-outline" size={24} color="black" />
                 <Text style={styles.addVehicleText}>Add Vehicle</Text>
@@ -93,7 +93,7 @@ const UserHomeScreen = () => {
 
               <TouchableOpacity
                 style={styles.earnButton}
-                onPress={() => navigation.navigate("EarnScreen")}
+                onPress={() => navigation.navigate("ListYourSpaceScreen")}
               >
                 <Text style={styles.earnButtonText}>Earn with us!</Text>
               </TouchableOpacity>
