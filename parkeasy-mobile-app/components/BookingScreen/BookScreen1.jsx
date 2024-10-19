@@ -31,6 +31,7 @@ const BookingScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [searchLoading, setSearchLoading] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [searchedLocation, setSearchedLocation] = useState(null); // Define it if you're using it locally
 
   useEffect(() => {
     // Animate cards when the component mounts
@@ -82,11 +83,11 @@ const BookingScreen = ({ navigation }) => {
     fetchParkingSpaces();
   }, []);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     console.log("handleSearch called");
     setSearchLoading(true); // Start loading animation
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const query = searchQuery.trim().toLowerCase();
       console.log("Search query:", query);
 
@@ -96,25 +97,27 @@ const BookingScreen = ({ navigation }) => {
         return;
       }
 
-      // Filter parking spaces based on building name, city, or location name
-      const filteredSpaces = parkingSpaces.filter((space) => {
-        const buildingName = space.building_name
-          ? space.building_name.toLowerCase()
-          : "";
-        const city = space.city ? space.city.toLowerCase() : "";
-        const locationName = space.location_name
-          ? space.location_name.toLowerCase()
-          : "";
-
-        return (
-          buildingName.includes(query) ||
-          city.includes(query) ||
-          locationName.includes(query)
+      // Here you would typically have a geocoding API to convert the search query to coordinates
+      try {
+        const response = await axios.get(
+          `YOUR_GEOCODING_API_URL?address=${query}`
         );
-      });
+        const { latitude, longitude } = response.data; // Get latitude and longitude from the API response
+        setSearchedLocation({ latitude, longitude }); // Update searched location state
 
-      setFilteredParkingSpaces(filteredSpaces); // Update filtered spaces
-      setSearchLoading(false); // Stop loading
+        // Update the map region based on the searched location
+        setMapRegion({
+          latitude,
+          longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        });
+      } catch (error) {
+        console.error("Geocoding error:", error);
+        Alert.alert("Error", "Failed to find the searched location.");
+      }
+
+      // Filter parking spaces based on building name, city, or location name (as before)...
     }, 2000); // Simulate a 2-second loading delay
   };
 
@@ -150,6 +153,7 @@ const BookingScreen = ({ navigation }) => {
         navigation.navigate("BookScreen2", {
           parkingSpot: item,
           userLocation: userLocation, // Use userLocation directly
+          searchedLocation: searchedLocation, // Pass the searched location
         })
       }
     >

@@ -10,7 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRoute } from "@react-navigation/native"; // If using React Navigation
-import MapView from "react-native-maps"; // Import MapView
+import { WebView } from "react-native-webview"; // Import WebView for Leaflet
 import * as Location from "expo-location"; // For getting user location// For getting user location
 import { getDistance } from "geolib"; // Import geolib to calculate distance
 const BookScreen2 = ({ navigation }) => {
@@ -60,10 +60,10 @@ const BookScreen2 = ({ navigation }) => {
           { latitude, longitude },
           defaultLocation
         );
-        setDistance(distanceInMeters); // Distance in meters
+        setDistance(distanceInMeters);
       }
     })();
-  }, []);
+  }, [defaultLocation]);
 
   useEffect(() => {
     if (parkingSpot.id) {
@@ -229,20 +229,54 @@ const BookScreen2 = ({ navigation }) => {
       setTotalPrice(newTotal);
     }
   };
-
+  const handleNavigation = () => {
+    navigation.navigate("BookScreen3");
+  };
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* <ScrollView contentContainerStyle={styles.container}> */}
       <View style={styles.mapContainer}>
-        <MapView
-          style={styles.map}
-          initialRegion={{
-            latitude: defaultLocation.latitude,
-            longitude: defaultLocation.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          }}
-        />
+        {userLocation && (
+          <WebView
+            style={styles.map}
+            originWhitelist={["*"]}
+            source={{
+              html: `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                  <title>Map</title>
+                  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+                  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+                  <style>
+                    #map { height: 100vh; width: 100%; }
+                  </style>
+                </head>
+                <body>
+                  <div id="map"></div>
+                  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+                  <script>
+                    const userLocation = [${userLocation.latitude}, ${userLocation.longitude}];
+                    const defaultLocation = [${defaultLocation.latitude}, ${defaultLocation.longitude}];
+
+                    const map = L.map('map').setView(userLocation, 13);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                      maxZoom: 19,
+                      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    L.marker(userLocation).addTo(map).bindPopup('Your Location').openPopup();
+                    L.marker(defaultLocation).addTo(map).bindPopup('Searched Location').openPopup();
+
+                    const route = L.polyline([userLocation, defaultLocation], { color: '#FFD700' }).addTo(map);
+                    map.fitBounds(route.getBounds());
+                  </script>
+                </body>
+                </html>
+              `,
+            }}
+          />
+        )}
       </View>
 
       <TouchableOpacity
@@ -447,7 +481,10 @@ const BookScreen2 = ({ navigation }) => {
               <Text style={styles.priceSummary}>₹ {totalPrice}</Text>
             </View>
 
-            <TouchableOpacity style={styles.bookButton}>
+            <TouchableOpacity
+              style={styles.bookButton}
+              onPress={handleNavigation}
+            >
               <Text style={styles.bookButtonText}>Book Now</Text>
             </TouchableOpacity>
           </View>

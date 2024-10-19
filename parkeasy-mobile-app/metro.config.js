@@ -1,5 +1,6 @@
 const { getDefaultConfig } = require("expo/metro-config");
 const path = require("path");
+const blacklist = require("metro-config/src/defaults/exclusionList");
 
 module.exports = (() => {
   const config = getDefaultConfig(__dirname);
@@ -19,6 +20,8 @@ module.exports = (() => {
       ...resolver,
       assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
       sourceExts: [...resolver.sourceExts, "svg"],
+      // This disables dynamic requires by blocking paths that attempt it
+      blockList: blacklist([/dynamic-require/]),
     };
   }
 
