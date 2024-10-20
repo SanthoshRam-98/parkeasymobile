@@ -27,6 +27,12 @@ import BookScreen0 from "../BookingScreen/BookScreen0";
 import BookScreen1 from "../BookingScreen/BookScreen1";
 import BookScreen2 from "../BookingScreen/BookScreen2";
 import BookScreen3 from "../BookingScreen/BookScreen3";
+import BookScreen4 from "../BookingScreen/BookScreen4";
+import BookScreen5 from "../BookingScreen/BookScreen5";
+import BookScreen6 from "../BookingScreen/BookScreen6";
+import CancelBookingScreen from "../BookingOngoingScreen/Cancellation";
+import BookingCompletedScreen from "../NavBar/BookingCompletedScreen";
+import BookingCancelledScreen from "../NavBar/BookingCancelledScreen";
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
   return (
@@ -72,6 +78,21 @@ const AllNavScreens = () => {
       <Stack.Screen name="BookScreen1" component={BookScreen1} />
       <Stack.Screen name="BookScreen2" component={BookScreen2} />
       <Stack.Screen name="BookScreen3" component={BookScreen3} />
+      <Stack.Screen name="BookScreen4" component={BookScreen4} />
+      <Stack.Screen name="BookScreen5" component={BookScreen5} />
+      <Stack.Screen name="BookScreen6" component={BookScreen6} />
+      <Stack.Screen
+        name="CancelBookingScreen"
+        component={CancelBookingScreen}
+      />
+      <Stack.Screen
+        name="BookingCompletedScreen"
+        component={BookingCompletedScreen}
+      />
+      <Stack.Screen
+        name="BookingCancelledScreen"
+        component={BookingCancelledScreen}
+      />
       {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );

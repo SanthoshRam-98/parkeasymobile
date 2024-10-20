@@ -38,7 +38,7 @@ const UserHomeScreen = () => {
       route: "CarNav",
     },
     {
-      iconName: "calendar-outline", // Booking icon
+      iconName: "ticket-outline", // Booking icon
       route: "BookingNav",
     },
     {

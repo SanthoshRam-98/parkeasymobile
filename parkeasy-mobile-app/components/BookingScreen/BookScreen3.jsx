@@ -7,13 +7,17 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation hook
-
+import Bike from "../../screenImages/Vehicles/CarImage.svg";
 const ParkingDetails = () => {
   const navigation = useNavigation(); // Hook to get navigation object
-
+  const { height } = Dimensions.get("window");
+  const handleSubmit = () => {
+    navigation.navigate("BookScreen4");
+  };
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.headingContainer}>
@@ -26,14 +30,11 @@ const ParkingDetails = () => {
 
         <Text style={styles.headerTitle}>Parking Details</Text>
       </View>
-
+      <View>
+        <Bike width="100%" height={height * 0.4} />
+      </View>
       {/* ScrollView should take all available space */}
       <ScrollView style={styles.scrollView}>
-        <Image
-          source={{ uri: "https://your-parking-image-url.com" }}
-          style={styles.parkingImage}
-        />
-
         <View style={styles.infoContainer}>
           <Text style={styles.title}>RR Parking</Text>
           <Text style={styles.subTitle}>Vadapalani, Chennai</Text>
@@ -89,7 +90,7 @@ const ParkingDetails = () => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.bookButton}>
+          <TouchableOpacity style={styles.bookButton} onPress={handleSubmit}>
             <Text style={styles.bookButtonText}>Book Now</Text>
           </TouchableOpacity>
         </View>
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // padding: 20,
     // justifyContent: "space-between",
-    justifyContent: "space-betweeen",
+    justifyContent: "space-around",
 
     backgroundColor: "#1C1C1E",
     // paddingTop: 20, // Adjust based on your navigation bar height
@@ -142,16 +143,17 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1, // Ensure the ScrollView takes up all available space
+    // justifyContent: "space-around",
   },
-  parkingImage: {
-    width: "100%",
-    height: 200,
-    resizeMode: "cover", // Ensure image covers the space properly
-  },
+
   infoContainer: {
-    padding: 15,
+    // gap: 20,
+    padding: 20,
     backgroundColor: "#1C1C1E",
-    minHeight: "100%",
+    // alignContent: "center",
+    flexDirection: "column",
+    gap: 10,
+    // minHeight: "100%",
   },
   title: {
     color: "#fff",

@@ -178,7 +178,7 @@ function MyVehicleScreen() {
         navigationItems={[
           { iconName: "home-outline", route: "UserHomeScreen" },
           { iconName: "car-outline", route: "CarNav" },
-          { iconName: "calendar-outline", route: "BookingNav" },
+          { iconName: "ticket-outline", route: "BookingNav" },
           { iconName: "person-outline", route: "ProfileNav" },
         ]}
         activeIndex={activeNavIndex}
