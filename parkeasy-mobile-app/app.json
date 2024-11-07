@@ -3,6 +3,7 @@
     "name": "parkeasy-mobile-app",
     "slug": "parkeasy-mobile-app",
     "version": "1.0.0",
+    "scheme": "parkeasy",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -38,7 +39,13 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Allow ParkEasy to access your location."
         }
-      ]
-    ]
+      ],
+      "expo-secure-store"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "34617b6f-7558-4e04-8ec0-e21b61018c9f"
+      }
+    }
   }
 }

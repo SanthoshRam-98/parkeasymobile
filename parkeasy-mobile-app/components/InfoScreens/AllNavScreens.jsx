@@ -33,6 +33,9 @@ import BookScreen6 from "../BookingScreen/BookScreen6";
 import CancelBookingScreen from "../BookingOngoingScreen/Cancellation";
 import BookingCompletedScreen from "../NavBar/BookingCompletedScreen";
 import BookingCancelledScreen from "../NavBar/BookingCancelledScreen";
+import PaytmPaymentScreen from "../PaytmPayment/PaytmPaymentScreen";
+import PaymentDetailsScreen from "../PaytmPayment/PaymentDetailsScreen";
+import UserDetails from "../InfoScreens/UserDetails";
 const AllNavScreens = () => {
   const Stack = createStackNavigator();
   return (
@@ -52,8 +55,9 @@ const AllNavScreens = () => {
       /> */}
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="OTPVerification" component={OTPVerification} />
-      <Stack.Screen name="VehicleInputs" component={VehicleInputs} />
+      <Stack.Screen name="UserDetails" component={UserDetails} />
       <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} />
+      <Stack.Screen name="VehicleInputs" component={VehicleInputs} />      
       <Stack.Screen name="FullScreenMap" component={FullScreenMap} />
       <Stack.Screen name="CarNav" component={CarNav} />
       <Stack.Screen name="BookingNav" component={BookingNav} />
@@ -93,6 +97,12 @@ const AllNavScreens = () => {
         name="BookingCancelledScreen"
         component={BookingCancelledScreen}
       />
+      <Stack.Screen name="PaytmPaymentScreen" component={PaytmPaymentScreen} />
+      <Stack.Screen
+        name="PaymentDetailsScreen"
+        component={PaymentDetailsScreen}
+      />
+      
       {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );

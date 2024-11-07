@@ -28,5 +28,10 @@ module Parkeasymobile
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+    if ENV['NO_VIPS_WARNING']
+      # Silently ignore VIPS warnings if environment variable is set
+      Vips::Log.set(nil)
+    end
+
   end
 end

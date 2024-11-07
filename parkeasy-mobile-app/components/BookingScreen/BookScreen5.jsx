@@ -14,8 +14,15 @@ const BookScreen5 = ({ navigation }) => {
   const [cardsVisible] = useState(new Animated.Value(300)); // Initial value to hide the card
   const [selectedVehicle, setSelectedVehicle] = useState(null); // Track selected vehicle
   const handleSubmit = () => {
-    navigation.navigate("BookScreen6");
+    if (selectedVehicle === "Paytm") {
+      // Navigate to Paytm payment screen or integrate Paytm API call here
+      navigation.navigate("PaytmPaymentScreen"); // Assuming this is the screen for Paytm payment
+    } else {
+      // For other payment methods
+      navigation.navigate("BookScreen6");
+    }
   };
+
   // Start the animation when the component mounts
   useEffect(() => {
     Animated.timing(cardsVisible, {
@@ -111,6 +118,34 @@ const BookScreen5 = ({ navigation }) => {
               }
               size={24}
               color={selectedVehicle === "OLA" ? "#FFC107" : "#FFF"} // Change color if selected
+              style={styles.radioButton}
+            />
+          </TouchableOpacity>
+          {/* Vehicle Card 3 - Paytm */}
+          <TouchableOpacity
+            style={[
+              styles.vehicleCard,
+              selectedVehicle === "Paytm" && styles.selectedCard, // Highlight if selected
+            ]}
+            onPress={() => handleVehicleSelect("Paytm")} // Set selected vehicle to Paytm
+          >
+            <View style={styles.vehicleInfo}>
+              <Image
+                style={styles.vehicleImage}
+                source={{ uri: "https://your-paytm-image-url.com" }} // Replace with actual image URL
+              />
+              <View>
+                <Text style={styles.vehicleName}>Paytm</Text>
+              </View>
+            </View>
+            <Ionicons
+              name={
+                selectedVehicle === "Paytm"
+                  ? "radio-button-on"
+                  : "radio-button-off"
+              }
+              size={24}
+              color={selectedVehicle === "Paytm" ? "#FFC107" : "#FFF"} // Change color if selected
               style={styles.radioButton}
             />
           </TouchableOpacity>

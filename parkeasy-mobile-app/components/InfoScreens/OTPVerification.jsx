@@ -9,12 +9,12 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
+import axios from "axios";
 const { width } = Dimensions.get("window");
 
 const OTPVerification = ({ route, navigation }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const { phoneNumber } = route.params;
+  const { verificationId, phoneNumber, isNewUser } = route.params; // Retrieve verificationId and isNewUser
   const maskedPhoneNumber = `${phoneNumber.substring(
     0,
     2
@@ -39,6 +39,53 @@ const OTPVerification = ({ route, navigation }) => {
     }
   };
 
+  // Verify OTP
+  const handleVerifyOtp = async () => {
+    const otpCode = otp.join(""); // Join OTP digits
+    try {
+      const confirmationResult = await confirmVerificationCode(
+        verificationId,
+        otpCode
+      ); // Confirm verification code
+      console.log("Verification successful!", confirmationResult);
+      // Navigate to User Details or Home Screen
+      navigation.navigate(isNewUser ? "UserDetails" : "UserHomeScreen");
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      alert("Invalid OTP. Please try again."); // Show alert for invalid OTP
+    }
+  };
+
+  // ------------------------------ Trying Alternative ----------------------------------------------
+  // const handleVerifyOtp = async () => {
+  //   try {
+  //     const otpValue = otp.join("");
+  //     const response = await axios.post(
+  //       "http://192.168.225.160:3000/api/v1/verify_otp",
+  //       {
+  //         phone_number: phoneNumber,
+  //         otp: otpValue,
+  //       }
+  //     );
+
+  //     if (response.data.success) {
+  //       if (isNewUser) {
+  //         navigation.navigate("UserDetails"); // New users go to UserDetails
+  //       } else {
+  //         navigation.navigate("UserHomeScreen"); // Existing users go directly to Home
+  //       }
+  //     } else {
+  //       Alert.alert("Error", response.data.message || "Failed to verify OTP.");
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "Error verifying OTP:",
+  //       error.response?.data || error.message
+  //     );
+  //     Alert.alert("Error", "Failed to verify OTP. Please try again.");
+  //   }
+  // };
+  // ------------------------------ Trying Alternative ----------------------------------------------
   return (
     <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <View style={[styles.headerContainer, { marginTop: insets.top + 20 }]}>
@@ -71,7 +118,7 @@ const OTPVerification = ({ route, navigation }) => {
 
       <TouchableOpacity
         style={[styles.continueButton, { bottom: insets.bottom + 20 }]}
-        onPress={() => navigation.navigate("UserHomeScreen")}
+        onPress={handleVerifyOtp}
       >
         <Text style={styles.continueText}>Continue</Text>
       </TouchableOpacity>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_14_155441) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_28_062033) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -58,6 +58,20 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_14_155441) do
     t.text "selected_features"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "phone_number"
+    t.string "otp"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "otp_generated_at"
+    t.string "email"
+    t.string "password_digest"
+    t.string "user_role"
+    t.string "profile_picture"
+    t.string "auth0_uid"
+    t.index ["auth0_uid"], name: "index_users_on_auth0_uid", unique: true
   end
 
   create_table "vehicle_details", force: :cascade do |t|

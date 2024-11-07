@@ -4,7 +4,7 @@ const blacklist = require("metro-config/src/defaults/exclusionList");
 
 module.exports = (() => {
   const config = getDefaultConfig(__dirname);
-
+  config.resolver.sourceExts.push("cjs");
   const { transformer, resolver } = config;
 
   // Detect if building for web or mobile
@@ -20,8 +20,6 @@ module.exports = (() => {
       ...resolver,
       assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
       sourceExts: [...resolver.sourceExts, "svg"],
-      // This disables dynamic requires by blocking paths that attempt it
-      blockList: blacklist([/dynamic-require/]),
     };
   }
 

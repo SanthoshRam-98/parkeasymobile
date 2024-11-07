@@ -49,6 +49,15 @@ end
 
 gem 'pg'
 
-gem 'ruby-vips'
-
 gem "image_processing", "~> 1.2"
+
+gem 'httparty'
+
+# Gemfile
+gem 'dotenv-rails', groups: [:development, :test]
+
+gem 'jwt'
+gem 'omniauth'
+gem 'omniauth-auth0'
+
+gem 'google-id-token'

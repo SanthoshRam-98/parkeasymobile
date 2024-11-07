@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,13 +9,132 @@ import {
   Dimensions,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import GoogleIcon from "/Users/santh/OneDrive/Desktop/parkeasymobile/parkeasy-mobile-app/screenImages/googleicon.svg";
+import GoogleIcon from "../../screenImages/googleicon.svg";
+import axios from "axios";
 const { width, height } = Dimensions.get("window");
+import * as Google from "expo-auth-session/providers/google";
+import * as SecureStore from "expo-secure-store";
+import * as AuthSession from "expo-auth-session"; // <-- Import added
+
 const LoginScreen = ({ navigation }) => {
-  const [phoneNumber, setPhoneNumber] = useState("");
   const insets = useSafeAreaInsets();
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [verificationId, setVerificationId] = useState(null);
+  const CLIENT_ID =
+    "199863809916-0nt0vk16hjcuk93tti5ci3vk4b58dd94.apps.googleusercontent.com";
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: CLIENT_ID,
+    redirectUri: AuthSession.makeRedirectUri({
+      useProxy: false, // disable proxy for custom builds
+    }),
+  });
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      authenticateWithBackend(id_token);
+    }
+  }, [response]);
+
+  const authenticateWithBackend = async (idToken) => {
+    try {
+      const res = await axios.post(
+        "http://192.168.225.160:3000/api/v1/auth/google",
+        {
+          id_token: idToken,
+        }
+      );
+      const token = res.data.token;
+      await SecureStore.setItemAsync("userToken", token);
+      Alert.alert("Success", "Logged in successfully");
+      // Navigate to the next screen if needed
+    } catch (error) {
+      console.error("Authentication Error:", error);
+      Alert.alert("Error", "Login failed");
+    }
+  };
+  // Request OTP
+  const requestOTP = async () => {
+    try {
+      // Ensure the phone number is in the correct format
+      const formattedNumber = `+91${phoneNumber}`; // Adjust the country code as necessary
+
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        formattedNumber,
+        appVerifier
+      );
+      setVerificationId(confirmation.verificationId);
+
+      navigation.navigate("OTPVerificationScreen", {
+        verificationId: confirmation.verificationId,
+        phoneNumber: formattedNumber,
+      });
+    } catch (error) {
+      console.error("Error requesting OTP:", error);
+      Alert.alert("Error", error.message); // Show an alert with the error message
+    }
+  };
+
+  // ------------------------------ Trying Alternative ----------------------------------------------
+  // const [phoneNumber, setPhoneNumber] = useState("");
+  // const insets = useSafeAreaInsets();
+  // useEffect(() => {
+  //   const checkUserExists = async (phoneNumber) => {
+  //     try {
+  //       const response = await axios.get(
+  //         `http://192.168.225.160:3000/api/v1/check_user?phone_number=${phoneNumber}`
+  //       );
+
+  //       if (response.data.exists) {
+  //         // Navigate to UserHomeScreen if the user exists
+  //         navigation.navigate("UserHomeScreen");
+  //       } else {
+  //         // Navigate to LoginScreen if the user is new
+  //         navigation.navigate("LoginScreen");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking user existence:", error);
+  //     }
+  //   };
+
+  //   // Example: hardcoded phone number for testing
+  //   const phoneNumber = "9566624085"; // Replace with user-entered phone number
+  //   checkUserExists(phoneNumber);
+  // }, [navigation]);
+  // const handleGetOtp = async () => {
+  //   if (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
+  //     Alert.alert("Please enter a valid 10-digit number");
+  //     return;
+  //   }
+
+  //   try {
+  //     const response = await axios.post(
+  //       "http://192.168.225.160:3000/api/v1/send_otp",
+  //       {
+  //         phone_number: phoneNumber,
+  //       }
+  //     );
+
+  //     if (response.data.success) {
+  //       const isNewUser = response.data.is_new_user; // Get `isNewUser` from response
+  //       navigation.navigate("OTPVerification", { phoneNumber, isNewUser });
+  //     } else {
+  //       Alert.alert("Failed to send OTP. Please try again.");
+  //     }
+  //   } catch (error) {
+  //     console.error(
+  //       "Error sending OTP:",
+  //       error.response?.data || error.message
+  //     );
+  //     Alert.alert("Error", "Failed to send OTP. Please try again.");
+  //   }
+  // };
+  // ------------------------------ Trying Alternative ----------------------------------------------
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
@@ -46,23 +165,21 @@ const LoginScreen = ({ navigation }) => {
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.otpButton}
-            onPress={() =>
-              navigation.navigate("OTPVerification", { phoneNumber })
-            }
-          >
+          <TouchableOpacity style={styles.otpButton} onPress={requestOTP}>
             <Text style={styles.otpButtonText}>Get OTP</Text>
           </TouchableOpacity>
-
+          {/* Add this div for the reCAPTCHA verifier */}
+          {/* <View id="recaptcha-container"></View> */}
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>Or</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          <TouchableOpacity style={styles.googleSignInButton}>
-            {/* Assuming GoogleIcon is an imported component */}
+          <TouchableOpacity
+            style={styles.googleSignInButton}
+            onPress={() => promptAsync()}
+          >
             <GoogleIcon style={styles.googleIcon} />
             <Text style={styles.googleSignInText}>Sign In with Google</Text>
           </TouchableOpacity>
