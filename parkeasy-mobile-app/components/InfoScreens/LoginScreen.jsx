@@ -23,62 +23,64 @@ const LoginScreen = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [verificationId, setVerificationId] = useState(null);
-  const CLIENT_ID =
-    "199863809916-0nt0vk16hjcuk93tti5ci3vk4b58dd94.apps.googleusercontent.com";
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    clientId: CLIENT_ID,
-    redirectUri: AuthSession.makeRedirectUri({
-      useProxy: false, // disable proxy for custom builds
-    }),
-  });
+  // const CLIENT_ID =
+  //   "199863809916-0nt0vk16hjcuk93tti5ci3vk4b58dd94.apps.googleusercontent.com";
+  // const [request, response, promptAsync] = Google.useAuthRequest({
+  //   clientId: CLIENT_ID,
+  //   redirectUri: AuthSession.makeRedirectUri({
+  //     useProxy: false, // disable proxy for custom builds
+  //   }),
+  // });
 
-  useEffect(() => {
-    if (response?.type === "success") {
-      const { id_token } = response.params;
-      authenticateWithBackend(id_token);
-    }
-  }, [response]);
+  // useEffect(() => {
+  //   if (response?.type === "success") {
+  //     const { id_token } = response.params;
+  //     authenticateWithBackend(id_token);
+  //   }
+  // }, [response]);
 
-  const authenticateWithBackend = async (idToken) => {
-    try {
-      const res = await axios.post(
-        "http://192.168.225.160:3000/api/v1/auth/google",
-        {
-          id_token: idToken,
-        }
-      );
-      const token = res.data.token;
-      await SecureStore.setItemAsync("userToken", token);
-      Alert.alert("Success", "Logged in successfully");
-      // Navigate to the next screen if needed
-    } catch (error) {
-      console.error("Authentication Error:", error);
-      Alert.alert("Error", "Login failed");
-    }
-  };
+  // const authenticateWithBackend = async (idToken) => {
+  //   try {
+  //     const res = await axios.post(
+  //       "http://192.168.225.160:3000/api/v1/auth/google",
+  //       {
+  //         id_token: idToken,
+  //       }
+  //     );
+  //     const token = res.data.token;
+  //     await SecureStore.setItemAsync("userToken", token);
+  //     Alert.alert("Success", "Logged in successfully");
+  //     // Navigate to the next screen if needed
+  //   } catch (error) {
+  //     console.error("Authentication Error:", error);
+  //     Alert.alert("Error", "Login failed");
+  //   }
+  // };
   // Request OTP
-  const requestOTP = async () => {
-    try {
-      // Ensure the phone number is in the correct format
-      const formattedNumber = `+91${phoneNumber}`; // Adjust the country code as necessary
+  // const requestOTP = async () => {
+  //   try {
+  //     // Ensure the phone number is in the correct format
+  //     const formattedNumber = `+91${phoneNumber}`; // Adjust the country code as necessary
 
-      const confirmation = await signInWithPhoneNumber(
-        auth,
-        formattedNumber,
-        appVerifier
-      );
-      setVerificationId(confirmation.verificationId);
+  //     const confirmation = await signInWithPhoneNumber(
+  //       auth,
+  //       formattedNumber,
+  //       appVerifier
+  //     );
+  //     setVerificationId(confirmation.verificationId);
 
-      navigation.navigate("OTPVerificationScreen", {
-        verificationId: confirmation.verificationId,
-        phoneNumber: formattedNumber,
-      });
-    } catch (error) {
-      console.error("Error requesting OTP:", error);
-      Alert.alert("Error", error.message); // Show an alert with the error message
-    }
+  //     navigation.navigate("OTPVerificationScreen", {
+  //       verificationId: confirmation.verificationId,
+  //       phoneNumber: formattedNumber,
+  //     });
+  //   } catch (error) {
+  //     console.error("Error requesting OTP:", error);
+  //     Alert.alert("Error", error.message); // Show an alert with the error message
+  //   }
+  // };
+  const handlePress = () => {
+    navigation.replace("MainTabs"); // Navigate to MainTabs after login
   };
-
   // ------------------------------ Trying Alternative ----------------------------------------------
   // const [phoneNumber, setPhoneNumber] = useState("");
   // const insets = useSafeAreaInsets();
@@ -165,7 +167,7 @@ const LoginScreen = ({ navigation }) => {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.otpButton} onPress={requestOTP}>
+          <TouchableOpacity style={styles.otpButton} onPress={handlePress}>
             <Text style={styles.otpButtonText}>Get OTP</Text>
           </TouchableOpacity>
           {/* Add this div for the reCAPTCHA verifier */}

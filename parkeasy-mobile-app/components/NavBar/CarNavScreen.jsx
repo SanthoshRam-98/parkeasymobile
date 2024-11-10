@@ -166,25 +166,6 @@ function MyVehicleScreen() {
           </View>
         </View>
       </Modal>
-
-      {/* Loading Indicator */}
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#FFD613" />
-        </View>
-      )}
-
-      <BottomNavigationBar
-        navigationItems={[
-          { iconName: "home-outline", route: "UserHomeScreen" },
-          { iconName: "car-outline", route: "CarNav" },
-          { iconName: "ticket-outline", route: "BookingNav" },
-          { iconName: "person-outline", route: "ProfileNav" },
-        ]}
-        activeIndex={activeNavIndex}
-        setActiveIndex={setActiveNavIndex}
-        style={styles.bottomNav}
-      />
     </SafeAreaView>
   );
 }

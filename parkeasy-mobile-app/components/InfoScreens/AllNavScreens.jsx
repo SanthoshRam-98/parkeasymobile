@@ -4,6 +4,7 @@ import {
   TransitionPresets,
 } from "@react-navigation/stack";
 import HelloWorld from "./HelloWorld";
+import MainTabNavigator from "./MainTabNavigator";
 // import OnBoardScreen1 from "./OnboardScreen1";
 // import OnBoardScreen2 from "./OnBoardScreen2";
 // import ParkingSpaceListing from "./ParkingSpaceListing";
@@ -53,11 +54,13 @@ const AllNavScreens = () => {
         name="ParkingSpaceListing"
         component={ParkingSpaceListing}
       /> */}
+      {/* Main Tab Navigator for Bottom Navigation */}
+      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
       <Stack.Screen name="LoginScreen" component={LoginScreen} />
       <Stack.Screen name="OTPVerification" component={OTPVerification} />
       <Stack.Screen name="UserDetails" component={UserDetails} />
       <Stack.Screen name="UserHomeScreen" component={UserHomeScreen} />
-      <Stack.Screen name="VehicleInputs" component={VehicleInputs} />      
+      <Stack.Screen name="VehicleInputs" component={VehicleInputs} />
       <Stack.Screen name="FullScreenMap" component={FullScreenMap} />
       <Stack.Screen name="CarNav" component={CarNav} />
       <Stack.Screen name="BookingNav" component={BookingNav} />
@@ -102,7 +105,7 @@ const AllNavScreens = () => {
         name="PaymentDetailsScreen"
         component={PaymentDetailsScreen}
       />
-      
+
       {/* Add FullScreenMap here */}
     </Stack.Navigator>
   );

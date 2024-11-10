@@ -91,20 +91,6 @@ const MyBookingScreen = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      {/* Bottom Navigation Bar */}
-      <BottomNavigationBar
-        navigationItems={[
-          { iconName: "home-outline", route: "UserHomeScreen" },
-          { iconName: "car-outline", route: "CarNav" },
-          { iconName: "ticket-outline", route: "BookingNav" },
-          { iconName: "person-outline", route: "ProfileNav" },
-        ]}
-        activeIndex={activeNavIndex}
-        setActiveIndex={setActiveNavIndex}
-        style={styles.bottomNav}
-      />
     </View>
   );
 };

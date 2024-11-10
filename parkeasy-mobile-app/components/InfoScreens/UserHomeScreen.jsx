@@ -1,221 +1,440 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
-  TouchableOpacity,
+  Image,
   ScrollView,
-  Dimensions,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-import ParkingAvailability from "./ParkingAvailability";
-import ParkingServices from "./ParkingServices";
-import TrendingSection from "./TrendingSection";
-import OfferCard from "./OfferCard";
-import ExclusiveOffers from "./ExclusiveOffers";
-import BottomNavigationBar from "./BottomNavigationBar";
+import {
+  Search,
+  Share2,
+  Plus,
+  Car,
+  Bike,
+  Building2,
+  Building,
+  UtensilsCrossed,
+  Home,
+  Gift,
+  Ticket,
+  Users,
+} from "lucide-react-native";
+import MapView from "react-native-maps";
 
-const UserHomeScreen = () => {
-  const screenWidth = Dimensions.get("window").width;
-  const navigation = useNavigation();
-  const [activeIndex, setActiveIndex] = useState(0);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("focus", () => {
-      setActiveIndex(0); // Set activeIndex to 0 when UserHomeScreen is focused
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  const navigationItems = [
-    {
-      iconName: "home-outline", // Home icon
-      route: "UserHomeScreen", // Navigation route
-    },
-    {
-      iconName: "car-outline", // My Vehicles icon
-      route: "CarNav",
-    },
-    {
-      iconName: "ticket-outline", // Booking icon
-      route: "BookingNav",
-    },
-    {
-      iconName: "person-outline", // Profile icon
-      route: "ProfileNav",
-    },
-  ];
+export default function Component() {
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.profileScreenContainer}>
-        <View style={styles.profileNav}>
-          <View style={[styles.topSection, { width: screenWidth * 0.9 }]}>
-            <View style={styles.profileHeaderContainer}>
-              <View style={styles.profileImage}>
-                <Ionicons
-                  name="person-circle-outline"
-                  size={56}
-                  color="black"
-                />
-              </View>
-              <View style={styles.profileInfo}>
-                <Text style={styles.profileName}>Kaarthikeyan S V</Text>
-                <View style={styles.locationContainer}>
-                  <Ionicons name="location-outline" size={18} color="black" />
-                  <Text style={styles.locationText}>Chennai</Text>
-                </View>
-              </View>
-            </View>
-            <View style={styles.actionButtonsContainer}>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons name="search-outline" size={24} color="black" />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <Ionicons
-                  name="notifications-outline"
-                  size={24}
-                  color="black"
-                />
-              </TouchableOpacity>
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.profileSection}>
+            <Image
+              source={{ uri: "/placeholder.svg" }}
+              style={styles.profileImage}
+            />
+            <View>
+              <Text style={styles.userName}>Kaarthikeyan S V</Text>
+              <Text style={styles.location}>Chennai</Text>
             </View>
           </View>
-
-          <View style={styles.bottomSection}>
-            <View style={[styles.buttonsContainer]}>
-              <TouchableOpacity
-                style={styles.addVehicleContainer}
-                onPress={() => navigation.navigate("VehicleInputs")}
-              >
-                <Ionicons name="add-circle-outline" size={24} color="black" />
-                <Text style={styles.addVehicleText}>Add Vehicle</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.earnButton}
-                onPress={() => navigation.navigate("ListYourSpaceScreen")}
-              >
-                <Text style={styles.earnButtonText}>Earn with us!</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Search color="#000" size={24} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.iconButton}>
+              <Share2 color="#000" size={24} />
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.userParkings}>
-          <ParkingAvailability />
-          <ParkingServices />
-          <TrendingSection />
-          <OfferCard />
-          <ExclusiveOffers />
+        {/* Action Buttons */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.addVehicleButton}>
+            <Plus color="#000" size={20} />
+            <Text style={styles.buttonText}>Add Vehicle</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.earnButton}>
+            <Text style={styles.earnButtonText}>Earn with us!</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Map Section */}
+        <View style={styles.mapContainer}>
+          <Text style={styles.sectionTitle}>Around you</Text>
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: 13.0827,
+              longitude: 80.2707,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          >
+            {/* <Marker coordinate={{ latitude: 13.0827, longitude: 80.2707 }} /> */}
+          </MapView>
+        </View>
+
+        {/* Parking Availability */}
+        <View style={styles.parkingTypes}>
+          <Text style={styles.sectionTitle}>Parking Availability</Text>
+          <View style={styles.parkingToggle}>
+            <TouchableOpacity
+              style={[styles.toggleButton, styles.activeToggle]}
+            >
+              <Car color="#000" size={20} />
+              <Text style={styles.toggleText}>Car</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.toggleButton}>
+              <Bike color="#fff" size={20} />
+              <Text style={[styles.toggleText, styles.inactiveText]}>Bike</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Parking Services */}
+        <View style={styles.services}>
+          <Text style={styles.sectionTitle}>Parking Services</Text>
+          <View style={styles.serviceGrid}>
+            <TouchableOpacity style={styles.serviceItem}>
+              <Building2 color="#fff" size={24} />
+              <Text style={styles.serviceText}>Workplace</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.serviceItem}>
+              <Building color="#fff" size={24} />
+              <Text style={styles.serviceText}>Shopping Mall</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.serviceItem}>
+              <UtensilsCrossed color="#fff" size={24} />
+              <Text style={styles.serviceText}>Restaurants</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.serviceItem}>
+              <Home color="#fff" size={24} />
+              <Text style={styles.serviceText}>Residential area</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Premium Plans */}
+        <View style={styles.premiumPlans}>
+          <Text style={styles.sectionTitle}>Premium Plans</Text>
+          <View style={styles.planCards}>
+            <TouchableOpacity style={styles.planCard}>
+              <Text style={styles.planTitle}>Monthly Parking</Text>
+              <Text style={styles.planDescription}>
+                Dedicated parking available near you.
+              </Text>
+              <TouchableOpacity style={styles.exploreButton}>
+                <Text style={styles.exploreText}>Explore Now →</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.planCard}>
+              <Text style={styles.planTitle}>Yearly Parking</Text>
+              <Text style={styles.planDescription}>
+                Dedicated parking available near you.
+              </Text>
+              <TouchableOpacity style={styles.exploreButton}>
+                <Text style={styles.exploreText}>Explore Now →</Text>
+              </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Trending Section */}
+        <View style={styles.trending}>
+          <Text style={styles.sectionTitle}>Trending</Text>
+          <TouchableOpacity style={styles.trendingCard}>
+            <View>
+              <Text style={styles.saveAmount}>Save ₹500</Text>
+              <Text style={styles.offerTitle}>On Your First EV Parking</Text>
+              <Text style={styles.offerDescription}>
+                We provide dedicated monthly parking with surveillance
+              </Text>
+              <View style={styles.customerCount}>
+                <Text style={styles.countText}>100 +</Text>
+                <Text style={styles.countLabel}>Happy Customers</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+
+        {/* Exclusive Offers */}
+        <View style={styles.exclusiveOffers}>
+          <Text style={styles.sectionTitle}>Exclusive Offers</Text>
+          <View style={styles.offerGrid}>
+            <TouchableOpacity style={styles.offerItem}>
+              <Gift color="#FFD60A" size={24} />
+              <Text style={styles.offerText}>Rewards</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.offerItem}>
+              <Ticket color="#FFD60A" size={24} />
+              <Text style={styles.offerText}>Discounts</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.offerItem}>
+              <Users color="#FFD60A" size={24} />
+              <Text style={styles.offerText}>Refer & Win</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation Bar */}
-      <BottomNavigationBar
-        navigationItems={navigationItems}
-        activeIndex={activeIndex}
-        setActiveIndex={setActiveIndex}
-      />
-    </View>
+      {/* Bottom Navigation
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem}>
+          <Home color="#FFD60A" size={24} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Car color="#666" size={24} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Ticket color="#666" size={24} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem}>
+          <Users color="#666" size={24} />
+        </TouchableOpacity>
+      </View> */}
+    </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  profileScreenContainer: {
-    backgroundColor: "rgba(19, 18, 18, 1)",
-    padding: 16,
-    alignItems: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
   },
-  profileNav: {
-    backgroundColor: "rgba(255, 214, 19, 1)",
+  scrollView: {
+    flex: 1,
   },
-  profileScreenContainer: {
-    backgroundColor: "rgba(19, 18, 18, 1)",
-    padding: 16,
-    alignItems: "center",
-  },
-  topSection: {
+  header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 36,
     alignItems: "center",
+    padding: 16,
   },
-  profileHeaderContainer: {
+  profileSection: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 12,
   },
   profileImage: {
-    borderRadius: 28,
-    overflow: "hidden",
-    width: 56,
-    height: 56,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
-  profileInfo: {
-    flexDirection: "column",
-    alignItems: "flex-start",
-    marginLeft: 12,
-  },
-  profileName: {
+  userName: {
+    color: "#fff",
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "bold",
   },
-  locationContainer: {
+  location: {
+    color: "#666",
+    fontSize: 14,
+  },
+  headerActions: {
     flexDirection: "row",
-    alignItems: "center",
-    marginTop: 4,
-  },
-  locationText: {
-    fontSize: 12,
-    fontWeight: "300",
-    marginLeft: 4,
-  },
-  actionButtonsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    gap: 12,
   },
   iconButton: {
-    marginLeft: 16,
-  },
-  bottomSection: {
-    width: "100%",
-    alignItems: "center",
-    paddingHorizontal: 16,
-  },
-  buttonsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  addVehicleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "rgba(0, 0, 0, 1)",
-    borderRadius: 10,
-    flex: 1,
+    width: 40,
+    height: 40,
+    backgroundColor: "#FFD60A",
+    borderRadius: 20,
     justifyContent: "center",
-    marginRight: 8,
+    alignItems: "center",
   },
-  addVehicleText: {
-    marginLeft: 8,
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+    padding: 16,
+  },
+  addVehicleButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#FFD60A",
+    padding: 12,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#000",
+    fontSize: 16,
+    fontWeight: "600",
   },
   earnButton: {
-    borderRadius: 10,
-    backgroundColor: "rgba(19, 18, 18, 1)",
-    padding: 12,
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#222",
+    padding: 12,
+    borderRadius: 8,
     alignItems: "center",
   },
   earnButtonText: {
-    fontSize: 14,
-    color: "#ffffff",
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
-  userParkings: {
-    width: "100%",
-    marginBottom: 80,
+  mapContainer: {
+    padding: 16,
+  },
+  sectionTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  map: {
+    height: 200,
+    borderRadius: 12,
+  },
+  parkingTypes: {
+    padding: 16,
+  },
+  parkingToggle: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  toggleButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  activeToggle: {
+    backgroundColor: "#FFD60A",
+    borderColor: "#FFD60A",
+  },
+  toggleText: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  inactiveText: {
+    color: "#fff",
+  },
+  services: {
+    padding: 16,
+  },
+  serviceGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  serviceItem: {
+    width: "48%",
+    backgroundColor: "#222",
+    padding: 16,
+    borderRadius: 12,
+    alignItems: "center",
+    gap: 8,
+  },
+  serviceText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  premiumPlans: {
+    padding: 16,
+  },
+  planCards: {
+    gap: 12,
+  },
+  planCard: {
+    backgroundColor: "#222",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  planTitle: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  planDescription: {
+    color: "#666",
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  exploreButton: {
+    backgroundColor: "#FFD60A",
+    padding: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  exploreText: {
+    color: "#000",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  trending: {
+    padding: 16,
+  },
+  trendingCard: {
+    backgroundColor: "#222",
+    padding: 16,
+    borderRadius: 12,
+  },
+  saveAmount: {
+    color: "#FFD60A",
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 4,
+  },
+  offerTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 8,
+  },
+  offerDescription: {
+    color: "#666",
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  customerCount: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  countText: {
+    color: "#FFD60A",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  countLabel: {
+    color: "#666",
+    fontSize: 14,
+  },
+  exclusiveOffers: {
+    padding: 16,
+  },
+  offerGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  offerItem: {
+    alignItems: "center",
+    gap: 8,
+  },
+  offerText: {
+    color: "#fff",
+    fontSize: 14,
+  },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 16,
+    backgroundColor: "#111",
+    borderTopWidth: 1,
+    borderTopColor: "#222",
+  },
+  navItem: {
+    alignItems: "center",
   },
 });
-
-export default UserHomeScreen;
